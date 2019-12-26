@@ -12,6 +12,8 @@ class TasksRoutes {
         this.router.post('/document', tasksController_1.tasksController.addDocumentTask);
         this.router.post('/form', tasksController_1.tasksController.addFormTask);
         this.router.post('/student/task', tasksController_1.tasksController.addTaskStudent);
+        this.router.post('/students', tasksController_1.tasksController.assignTaskAllStudentsSubject);
+        this.router.get('/all/:id_student', tasksController_1.tasksController.getAllTaskStudentAvaliable);
     }
 }
 const tasksRoutes = new TasksRoutes();

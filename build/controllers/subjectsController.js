@@ -68,7 +68,6 @@ class SubjectsController {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_student } = req.body;
             const { subject_code } = req.body;
-            const newSubject = {};
             const subject = yield database_1.default.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
             const id_subject = subject[0].id_subject;
             const newEnrolled = {
@@ -90,6 +89,7 @@ class SubjectsController {
             // res.status(404).json({text: "not found game"});
         });
     }
+    //QUIZAS NO SIRVE REVISAR DESPUES PARA LIMPIAR EL CODIGO
     getSubject(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_subject } = req.params;
@@ -104,8 +104,7 @@ class SubjectsController {
     getStudentSubjects(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_student } = req.params;
-            const studentSubjects = yield database_1.default.query('SELECT subjects.subject_name, subjects.subject_semester, subjects.year FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
-            console.log(studentSubjects);
+            const studentSubjects = yield database_1.default.query('SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
             return res.json(studentSubjects);
             // res.status(404).json({text: "not found game"});
         });

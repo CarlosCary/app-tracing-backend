@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../database"));
+const helpers_1 = require("./helpers");
 class TasksController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -55,7 +56,6 @@ class TasksController {
                 id_task: idTask,
             };
             const result = yield database_1.default.query('INSERT INTO document_requested SET ?', [newDocument]);
-            console.log(newDocument);
             res.json(result);
         });
     }
@@ -70,7 +70,6 @@ class TasksController {
                 id_task: idTask,
             };
             const result = yield database_1.default.query('INSERT INTO form_task SET ?', [newForm]);
-            console.log(newForm);
             res.json(result);
         });
     }
@@ -83,7 +82,6 @@ class TasksController {
                 id_task: idTask
             };
             const result = yield database_1.default.query('INSERT INTO students_tasks SET ?', [newTaskStudent]);
-            console.log(newTaskStudent);
             res.json(result);
         });
     }
@@ -92,6 +90,27 @@ class TasksController {
             // const { id } = req.params;
             // await pool.query('DELETE FROM games WHERE id = ?', [id]);
             // res.json({text: "the game was deleted"});
+        });
+    }
+    assignTaskAllStudentsSubject(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_subject } = req.body;
+            const { id_task } = req.body;
+            const studentsIds = yield database_1.default.query('SELECT enrolled_students.id_student FROM enrolled_students WHERE enrolled_students.id_subject = ?', [id_subject]);
+            let newTaskManyStudents = [];
+            for (let i = 0; i < studentsIds.length; i++) {
+                newTaskManyStudents.push([id_task, studentsIds[i].id_student]);
+            }
+            const taskStudents = yield database_1.default.query('INSERT INTO students_tasks (id_task, id_student) VALUES ?', [newTaskManyStudents]);
+            res.json(taskStudents);
+        });
+    }
+    getAllTaskStudentAvaliable(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let todayDate = helpers_1.helpers.getDateToday();
+            const { id_student } = req.params;
+            const studentsTasks = yield database_1.default.query('SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
+            res.json(studentsTasks);
         });
     }
 }

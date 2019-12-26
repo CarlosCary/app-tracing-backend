@@ -56,7 +56,6 @@ class SubjectsController {
         const { id_student } = req.body;
         const { subject_code } = req.body;
         
-        const newSubject = {}
         const subject = await pool.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
         const id_subject = subject[0].id_subject;
         
@@ -80,6 +79,7 @@ class SubjectsController {
         // res.status(404).json({text: "not found game"});
     } 
 
+    //QUIZAS NO SIRVE REVISAR DESPUES PARA LIMPIAR EL CODIGO
     public async getSubject (req: Request, res: Response): Promise<any>{ 
         const { id_subject } = req.params;
         const subject = await pool.query('SELECT * FROM subjects WHERE id_subject = ?', [id_subject]);
@@ -90,15 +90,14 @@ class SubjectsController {
         // res.status(404).json({text: "not found game"});
     }
     
-    public async getStudentSubjects (req: Request, res: Response): Promise<any>{ 
+    public async getStudentSubjects (req: Request, res: Response): Promise<any> { 
         const { id_student } = req.params;
         const studentSubjects = await pool.query(
-            'SELECT subjects.subject_name, subjects.subject_semester, subjects.year FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
+            'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
         
-        console.log(studentSubjects);
         return res.json(studentSubjects);
         // res.status(404).json({text: "not found game"});
-    } 
+    }
 }
 
 export const subjectsController = new SubjectsController();

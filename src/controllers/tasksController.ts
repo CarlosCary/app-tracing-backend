@@ -47,7 +47,7 @@ class TasksController {
         }
 
         const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
-        console.log(newDocument);
+        
         res.json(result);
     }
 
@@ -63,7 +63,7 @@ class TasksController {
         }
 
         const result = await pool.query('INSERT INTO form_task SET ?', [newForm]);
-        console.log(newForm);
+        
         res.json(result);
     }
     
@@ -77,7 +77,7 @@ class TasksController {
         }
 
         const result = await pool.query('INSERT INTO students_tasks SET ?', [newTaskStudent]);
-        console.log(newTaskStudent);
+        
         res.json(result);
     }
 
@@ -85,6 +85,31 @@ class TasksController {
         // const { id } = req.params;
         // await pool.query('DELETE FROM games WHERE id = ?', [id]);
         // res.json({text: "the game was deleted"});
+    }
+
+    public async assignTaskAllStudentsSubject (req: Request, res: Response): Promise<any> { 
+        const { id_subject } = req.body;
+        const { id_task } = req.body;
+        const studentsIds = await pool.query(
+            'SELECT enrolled_students.id_student FROM enrolled_students WHERE enrolled_students.id_subject = ?', [id_subject]);
+        
+        
+        let newTaskManyStudents = [];
+
+        for(let i = 0; i < studentsIds.length; i ++) {
+            newTaskManyStudents.push( [id_task, studentsIds[i].id_student] );
+        }
+
+        const taskStudents = await pool.query('INSERT INTO students_tasks (id_task, id_student) VALUES ?', [newTaskManyStudents]);
+        res.json(taskStudents);
+        
+    }
+
+    public async getAllTaskStudentAvaliable(req: Request, res: Response): Promise<any> { 
+        let todayDate = helpers.getDateToday();
+        const { id_student } = req.params;
+        const studentsTasks = await pool.query( 'SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
+        res.json(studentsTasks);
     }
 }
 
