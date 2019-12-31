@@ -1,11 +1,16 @@
 import {Request, Response } from 'express';
 import pool from '../database';
+import Student from '../models/StudentModel';
 
-class GamesController {
+class StudentController {
 
-    public async list (req: Request, res: Response){ 
-        const games = await pool.query("SELECT * FROM games");
-        res.json(games);
+    public async list (req: Request, res: Response) {
+        try {
+            const students = await Student.find();
+            res.json(students);
+        } catch(error) {
+            res.json({message:error});
+        }
     }
 
     
@@ -20,8 +25,21 @@ class GamesController {
     }
 
     public async create (req: Request, res: Response): Promise<void>{
-        await pool.query('INSERT INTO games set ?', [req.body]);
-        res.json({message: 'game saved'});
+        // await pool.query('INSERT INTO games set ?', [req.body]);
+        console.log(req.body);
+        const student = new Student({
+            name: req.body.name,
+            username: req.body.username,
+            password: req.body.password,
+        })
+
+        
+        try {
+            const savedStudent = await student.save();
+            res.json(savedStudent);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
     }
 
     public async update (req: Request, res: Response) {
@@ -37,5 +55,5 @@ class GamesController {
     }
 }
 
-const gamesController = new GamesController();
-export default gamesController;
+const studentController = new StudentController();
+export default studentController;

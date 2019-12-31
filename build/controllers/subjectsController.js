@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../database"));
 const helpers_1 = require("./helpers");
+const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
 class SubjectsController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,16 +39,22 @@ class SubjectsController {
             const { year } = req.body;
             const { id_proffesor } = req.body;
             const subject_code = yield helpers_1.helpers.makeRandomString(5);
-            const newSubject = {
-                subject_name,
-                subject_semester,
-                year,
-                id_proffesor,
-                subject_code,
-            };
-            const result = yield database_1.default.query('INSERT INTO subjects SET ?', [newSubject]);
-            // console.log(result);
-            res.json(newSubject);
+            const subject = new SubjectModel_1.default({
+                name: subject_name,
+                semester: subject_semester,
+                year: year,
+                idProffesor: id_proffesor,
+                subjectCode: subject_code,
+            });
+            try {
+                const savedSubject = yield subject.save();
+                res.json(savedSubject);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+            // const result = await pool.query('INSERT INTO subjects SET ?', [newSubject]);
+            // res.json(newSubject);
         });
     }
     update(req, res) {
@@ -68,14 +75,25 @@ class SubjectsController {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_student } = req.body;
             const { subject_code } = req.body;
-            const subject = yield database_1.default.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
+            /*
+            const subject = await pool.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
             const id_subject = subject[0].id_subject;
+            
             const newEnrolled = {
                 id_student,
                 id_subject,
-            };
-            const enrolled = yield database_1.default.query('INSERT INTO enrolled_students SET ?', [newEnrolled]);
-            res.json(enrolled);
+            }
+    
+            const enrolled = await pool.query('INSERT INTO enrolled_students SET ?', [newEnrolled]);
+            */
+            try {
+                let newEnrolled = yield SubjectModel_1.default.updateOne({ subjectCode: subject_code }, { $push: { enrolledStudents: id_student } });
+                res.json(newEnrolled);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+            // res.json(enrolled);
         });
     }
     getStudentsSubject(req, res) {
@@ -89,24 +107,32 @@ class SubjectsController {
             // res.status(404).json({text: "not found game"});
         });
     }
-    //QUIZAS NO SIRVE REVISAR DESPUES PARA LIMPIAR EL CODIGO
-    getSubject(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { id_subject } = req.params;
-            const subject = yield database_1.default.query('SELECT * FROM subjects WHERE id_subject = ?', [id_subject]);
-            // if(games.length > 0) {
-            //     return res.json(games[0]);
-            // }
-            return res.json(subject[0]);
-            // res.status(404).json({text: "not found game"});
-        });
-    }
     getStudentSubjects(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_student } = req.params;
-            const studentSubjects = yield database_1.default.query('SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
-            return res.json(studentSubjects);
+            // const studentSubjects = await pool.query(
+            //     'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
+            try {
+                let studentSubjects = yield SubjectModel_1.default.find({ enrolledStudents: id_student });
+                res.json(studentSubjects);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+            // return res.json(studentSubjects);
             // res.status(404).json({text: "not found game"});
+        });
+    }
+    getProffesorSubjects(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_proffesor } = req.params;
+            try {
+                let proffesorSubjects = yield SubjectModel_1.default.find({ idProffesor: id_proffesor });
+                res.json(proffesorSubjects);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
         });
     }
 }

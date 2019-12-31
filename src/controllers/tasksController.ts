@@ -1,23 +1,13 @@
 import {Request, Response } from 'express';
 import pool from '../database';
 import { helpers } from './helpers';
+import Task from '../models/TaskRequestedModel';
+import Subject from '../models/SubjectModel';
 
 class TasksController {
-
-    public async list (req: Request, res: Response){ 
-        // const subjects = await pool.query("SELECT * FROM subjects");
-        // res.json(subjects);
-    }
-
     
-    public async getOne (req: Request, res: Response): Promise<any>{ 
-        // const { id } = req.params;
-        // const games = await pool.query('SELECT * FROM games WHERE id = ?', [id]);
-        // if(games.length > 0) {
-        //     return res.json(games[0]);
-        // }
-        
-        // res.status(404).json({text: "not found game"});
+    public async getOneTask (req: Request, res: Response): Promise<any>{ 
+        //TODO
     }
 
     public async createTask (req: Request, res: Response): Promise<void>{
@@ -25,16 +15,30 @@ class TasksController {
         const { idSubject } = req.body;
         const { deadline } = req.body;
         const { visibilityDate } = req.body;
+        const { documentsRequested } = req.body;
+        const { formTittles } = req.body;
+        const { formDescriptions } = req.body;
+        const form = { tittleForm: formTittles, descriptionForm: formDescriptions}
+        //this gets studentsId array and id of subject, we need just studentsId Array
+        const studentsId = await Subject.where('_id').gte(idSubject).select('enrolledStudents');
 
-        const newTask = {
-            task_name: taskName,
-            id_subject: idSubject,
-            deadline,
-            visibility_date: visibilityDate,
+        const task = new Task({
+            idSubject: idSubject,
+            name: taskName,
+            deadline: deadline,
+            visibilityDate: visibilityDate,
+            students: studentsId[0].enrolledStudents,
+            documentsRequested: documentsRequested,
+            formRequested: form
+        })
+
+        try {
+            const savedTask = await task.save();
+            res.json(savedTask);
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
         }
-
-        const result = await pool.query('INSERT INTO subject_task SET ?', [newTask]);
-        res.json(result.insertId);
     }
 
     public async addDocumentTask (req: Request, res: Response): Promise<void>{
@@ -82,9 +86,7 @@ class TasksController {
     }
 
     public async delete (req: Request, res: Response): Promise<void>{
-        // const { id } = req.params;
-        // await pool.query('DELETE FROM games WHERE id = ?', [id]);
-        // res.json({text: "the game was deleted"});
+        //TODO
     }
 
     public async assignTaskAllStudentsSubject (req: Request, res: Response): Promise<any> { 
@@ -108,8 +110,28 @@ class TasksController {
     public async getAllTaskStudentAvaliable(req: Request, res: Response): Promise<any> { 
         let todayDate = helpers.getDateToday();
         const { id_student } = req.params;
-        const studentsTasks = await pool.query( 'SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
-        res.json(studentsTasks);
+        try {
+            const studentTasks = await Task.where('students').gte(id_student);
+            res.json(studentTasks);
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
+        } 
+        // const studentsTasks = await pool.query( 'SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
+        // res.json(studentsTasks);
+    }
+
+    public async getFormRequestedTask(req: Request, res: Response): Promise<any> { 
+        const { id_task } = req.params;
+
+        try {
+            const formTask = await Task.where('_id').gte(id_task);
+            console.log(formTask);
+            res.json(formTask);
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
+        } 
     }
 }
 

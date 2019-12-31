@@ -5,20 +5,23 @@ import cors from 'cors';
 import passport from 'passport';
 
 import indexRoutes from './routes/indexRoutes';
-import gameRoutes from './routes/gameRoutes';
 import loginRoutes from './routes/loginRoutes';
 import subjectsRoutes from './routes/subjectsRoutes';
 import tasksRoutes from './routes/tasksRoutes';
+import studentRoutes from './routes/studentRoutes';
 
+import mongoose from 'mongoose';
 // import passport1 from './controllers/passPortController';
+import 'dotenv/config';
 
 class Server {
-
     public app: Application;
+    public auth: any;
     constructor() {
         this.app = express();
         this.config();
         this.routes();
+        this.auth = process.env.DB_CONNECTION;
     }
 
     config(): void {
@@ -33,16 +36,21 @@ class Server {
 
     routes(): void {
         this.app.use('/', indexRoutes);
-        this.app.use('/api/games', gameRoutes);
         this.app.use('/', loginRoutes);
         this.app.use('/subjects', subjectsRoutes);
         this.app.use('/tasks', tasksRoutes);
+        this.app.use('/student', studentRoutes);
     }
 
     start(): void {
         this.app.listen(this.app.get('port'), () => {
             console.log("Server on port ", this.app.get('port'));
         });
+
+        // mongoose.connect(this.auth,
+        //     { useNewUrlParser: true, useUnifiedTopology: true },
+        //     () => console.log("connected to mongoDB")
+        // );
     }
 }
 

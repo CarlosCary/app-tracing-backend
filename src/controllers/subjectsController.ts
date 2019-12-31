@@ -1,6 +1,7 @@
 import {Request, Response } from 'express';
 import pool from '../database';
 import { helpers } from './helpers';
+import Subject from '../models/SubjectModel';
 
 class SubjectsController {
 
@@ -27,17 +28,22 @@ class SubjectsController {
         const { id_proffesor } = req.body;
         const subject_code = await helpers.makeRandomString(5);
 
-        const newSubject = {
-            subject_name,
-            subject_semester,
-            year,
-            id_proffesor,
-            subject_code,
+        const subject = new Subject({
+            name: subject_name,
+            semester: subject_semester,
+            year: year,
+            idProffesor: id_proffesor,
+            subjectCode: subject_code,
+        })
+        
+        try {
+            const savedSubject = await subject.save();
+            res.json(savedSubject);
+        } catch (error) {
+            res.status(400).json({message: error });
         }
-
-        const result = await pool.query('INSERT INTO subjects SET ?', [newSubject]);
-        // console.log(result);
-        res.json(newSubject);
+        // const result = await pool.query('INSERT INTO subjects SET ?', [newSubject]);
+        // res.json(newSubject);
     }
 
     public async update (req: Request, res: Response) {
@@ -53,9 +59,10 @@ class SubjectsController {
     }
 
     public async enrolled(req: Request, res: Response): Promise<void> {
+        
         const { id_student } = req.body;
         const { subject_code } = req.body;
-        
+        /*
         const subject = await pool.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
         const id_subject = subject[0].id_subject;
         
@@ -65,8 +72,16 @@ class SubjectsController {
         }
 
         const enrolled = await pool.query('INSERT INTO enrolled_students SET ?', [newEnrolled]);
-
-        res.json(enrolled);
+        */
+        
+        try {  
+            let newEnrolled:any = await Subject.updateOne({ subjectCode: subject_code }, { $push: {enrolledStudents: id_student}});
+            res.json(newEnrolled);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+        // res.json(enrolled);
     }
 
     public async getStudentsSubject (req: Request, res: Response): Promise<any>{ 
@@ -78,25 +93,32 @@ class SubjectsController {
         return res.json(student);
         // res.status(404).json({text: "not found game"});
     } 
-
-    //QUIZAS NO SIRVE REVISAR DESPUES PARA LIMPIAR EL CODIGO
-    public async getSubject (req: Request, res: Response): Promise<any>{ 
-        const { id_subject } = req.params;
-        const subject = await pool.query('SELECT * FROM subjects WHERE id_subject = ?', [id_subject]);
-        // if(games.length > 0) {
-        //     return res.json(games[0]);
-        // }
-        return res.json(subject[0]);
-        // res.status(404).json({text: "not found game"});
-    }
     
     public async getStudentSubjects (req: Request, res: Response): Promise<any> { 
         const { id_student } = req.params;
-        const studentSubjects = await pool.query(
-            'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
-        
-        return res.json(studentSubjects);
+        // const studentSubjects = await pool.query(
+        //     'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
+        try {  
+            let studentSubjects:any = await Subject.find({ enrolledStudents: id_student });
+            res.json(studentSubjects);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+        // return res.json(studentSubjects);
         // res.status(404).json({text: "not found game"});
+    }
+
+    public async getProffesorSubjects(req: Request, res: Response): Promise<any> { 
+        const { id_proffesor } = req.params;
+
+        try {  
+            let proffesorSubjects:any = await Subject.find({ idProffesor: id_proffesor });
+            res.json(proffesorSubjects);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
     }
 }
 

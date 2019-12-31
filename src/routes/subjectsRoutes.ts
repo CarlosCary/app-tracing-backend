@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { subjectsController } from '../controllers/subjectsController';
+import { subjectsController } from '../controllers/SubjectsController';
 
 class SubjectsRoutes {
 
@@ -15,7 +15,7 @@ class SubjectsRoutes {
         this.router.get('/', subjectsController.list);
         this.router.post('/new/enrolled', subjectsController.enrolled);
         this.router.get('/student/:id_student', subjectsController.getStudentSubjects);
-        this.router.get('/:id_subject', subjectsController.getSubject);
+        this.router.get('/proffesor/:id_proffesor', subjectsController.getProffesorSubjects);
     }
 }
 
