@@ -13,6 +13,7 @@ class LoginRoutes {
     config(): void {
         this.router.post('/signup', loginController.signup);
         this.router.post('/signin', loginController.signin);
+        
     }
 }
 

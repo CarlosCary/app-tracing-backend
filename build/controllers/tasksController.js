@@ -16,6 +16,9 @@ const database_1 = __importDefault(require("../database"));
 const helpers_1 = require("./helpers");
 const TaskRequestedModel_1 = __importDefault(require("../models/TaskRequestedModel"));
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
+const TaskSubmitted_1 = __importDefault(require("../models/TaskSubmitted"));
+// import multer from 'multer';
+// const upload = multer({dest: 'upload/'});
 class TasksController {
     getOneTask(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -55,14 +58,15 @@ class TasksController {
     }
     addDocumentTask(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { documentName } = req.body;
-            const { idTask } = req.body;
-            const newDocument = {
-                document_name: documentName,
-                id_task: idTask,
-            };
-            const result = yield database_1.default.query('INSERT INTO document_requested SET ?', [newDocument]);
-            res.json(result);
+            // const { documentName } = req.body;
+            // const { idTask } = req.body;
+            // const newDocument = {
+            //     document_name: documentName,
+            //     id_task: idTask,
+            // }
+            // const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
+            // res.json(result);
+            //TODO
         });
     }
     addFormTask(req, res) {
@@ -130,11 +134,32 @@ class TasksController {
             const { id_task } = req.params;
             try {
                 const formTask = yield TaskRequestedModel_1.default.where('_id').gte(id_task);
-                console.log(formTask);
                 res.json(formTask);
             }
             catch (error) {
-                console.log(error);
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    sendTask(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { idTask } = req.body;
+            const { idStudent } = req.body;
+            const documents = req.files;
+            let paths = [];
+            documents.map(function (document) {
+                paths.push(document.path);
+            });
+            const taskSubmitted = new TaskSubmitted_1.default({
+                idTask: idTask,
+                idStudent: idStudent,
+                documents: paths
+            });
+            try {
+                const savedTaskSubmitted = yield taskSubmitted.save();
+                res.json(savedTaskSubmitted);
+            }
+            catch (error) {
                 res.status(400).json({ message: error });
             }
         });

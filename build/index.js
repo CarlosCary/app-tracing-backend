@@ -8,6 +8,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const passport_1 = __importDefault(require("passport"));
 const indexRoutes_1 = __importDefault(require("./routes/indexRoutes"));
+const loginRoutes_1 = __importDefault(require("./routes/loginRoutes"));
 const subjectsRoutes_1 = __importDefault(require("./routes/subjectsRoutes"));
 const tasksRoutes_1 = __importDefault(require("./routes/tasksRoutes"));
 const studentRoutes_1 = __importDefault(require("./routes/studentRoutes"));
@@ -24,6 +25,7 @@ class Server {
         this.app.set('port', process.env.PORT || 3000);
         this.app.use(morgan_1.default("dev")); //nos ayuda a ver en consola las peticiones que se hacen
         this.app.use(cors_1.default());
+        this.app.use('/upload', express_1.default.static('upload'));
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
         this.app.use(passport_1.default.initialize());
@@ -31,6 +33,7 @@ class Server {
     }
     routes() {
         this.app.use('/', indexRoutes_1.default);
+        this.app.use('/', loginRoutes_1.default);
         this.app.use('/subjects', subjectsRoutes_1.default);
         this.app.use('/tasks', tasksRoutes_1.default);
         this.app.use('/student', studentRoutes_1.default);

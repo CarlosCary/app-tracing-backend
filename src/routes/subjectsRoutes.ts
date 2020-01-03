@@ -14,7 +14,7 @@ class SubjectsRoutes {
         this.router.post('/new', subjectsController.create);
         this.router.get('/', subjectsController.list);
         this.router.post('/new/enrolled', subjectsController.enrolled);
-        this.router.get('/student/:id_student', subjectsController.getStudentSubjects);
+        this.router.get('/student/:id_student/:semester/:year', subjectsController.getStudentSubjects);
         this.router.get('/proffesor/:id_proffesor', subjectsController.getProffesorSubjects);
     }
 }

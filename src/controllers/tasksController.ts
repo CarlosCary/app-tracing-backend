@@ -3,6 +3,10 @@ import pool from '../database';
 import { helpers } from './helpers';
 import Task from '../models/TaskRequestedModel';
 import Subject from '../models/SubjectModel';
+import TaskSubmitted from '../models/TaskSubmitted';
+// import multer from 'multer';
+
+// const upload = multer({dest: 'upload/'});
 
 class TasksController {
     
@@ -42,17 +46,19 @@ class TasksController {
     }
 
     public async addDocumentTask (req: Request, res: Response): Promise<void>{
-        const { documentName } = req.body;
-        const { idTask } = req.body;
+        // const { documentName } = req.body;
+        // const { idTask } = req.body;
 
-        const newDocument = {
-            document_name: documentName,
-            id_task: idTask,
-        }
+        // const newDocument = {
+        //     document_name: documentName,
+        //     id_task: idTask,
+        // }
 
-        const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
+        // const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
         
-        res.json(result);
+        // res.json(result);
+
+        //TODO
     }
 
     public async addFormTask (req: Request, res: Response): Promise<void>{
@@ -126,12 +132,35 @@ class TasksController {
 
         try {
             const formTask = await Task.where('_id').gte(id_task);
-            console.log(formTask);
             res.json(formTask);
         } catch (error) {
-            console.log(error);
             res.status(400).json({message: error });
         } 
+    }
+    
+    public async sendTask (req: Request, res: Response) { 
+        const { idTask } = req.body;
+        const { idStudent } = req.body;
+        const documents = req.files;
+        let paths = [];
+
+        documents.map(function(document) {
+            paths.push(document.path);
+        });
+
+        const taskSubmitted = new TaskSubmitted ({
+            idTask: idTask,
+            idStudent: idStudent,
+            documents: paths
+        });
+        
+        try {
+            const savedTaskSubmitted = await taskSubmitted.save();
+            res.json(savedTaskSubmitted);
+
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
     }
 }
 

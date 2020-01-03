@@ -62,18 +62,6 @@ class SubjectsController {
         
         const { id_student } = req.body;
         const { subject_code } = req.body;
-        /*
-        const subject = await pool.query('SELECT * FROM subjects WHERE subject_code = ?', [subject_code]);
-        const id_subject = subject[0].id_subject;
-        
-        const newEnrolled = {
-            id_student,
-            id_subject,
-        }
-
-        const enrolled = await pool.query('INSERT INTO enrolled_students SET ?', [newEnrolled]);
-        */
-        
         try {  
             let newEnrolled:any = await Subject.updateOne({ subjectCode: subject_code }, { $push: {enrolledStudents: id_student}});
             res.json(newEnrolled);
@@ -81,30 +69,37 @@ class SubjectsController {
         } catch (error) {
             res.status(400).json({message: error });
         }
-        // res.json(enrolled);
     }
-
-    public async getStudentsSubject (req: Request, res: Response): Promise<any>{ 
-        const { id_student } = req.params;
-        const student = await pool.query('SELECT * FROM enrolled_students WHERE id_student = ?', [id_student]);
-        // if(games.length > 0) {
-        //     return res.json(games[0]);
-        // }
-        return res.json(student);
-        // res.status(404).json({text: "not found game"});
-    } 
     
     public async getStudentSubjects (req: Request, res: Response): Promise<any> { 
         const { id_student } = req.params;
+        const { semester } = req.params;
+        const { year } = req.params;
         // const studentSubjects = await pool.query(
         //     'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
-        try {  
-            let studentSubjects:any = await Subject.find({ enrolledStudents: id_student });
-            res.json(studentSubjects);
-            
-        } catch (error) {
-            res.status(400).json({message: error });
+        console.log("que tiene semester");
+        console.log(semester);
+        if(semester != "null") {
+            try {  
+                let studentSubjects:any = await Subject.find({ enrolledStudents: id_student })
+                                                        .where('year').equals(year)
+                                                        .where('semester').equals(semester);
+                res.json(studentSubjects);
+                
+            } catch (error) {
+                res.status(400).json({message: error });
+            }
         }
+        else {
+            try {  
+                let studentSubjects:any = await Subject.find({ enrolledStudents: id_student });
+                res.json(studentSubjects);
+                
+            } catch (error) {
+                res.status(400).json({message: error });
+            }
+        }
+    
         // return res.json(studentSubjects);
         // res.status(404).json({text: "not found game"});
     }
