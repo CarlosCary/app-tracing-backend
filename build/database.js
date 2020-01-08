@@ -16,4 +16,5 @@ pool.getConnection()
     console.log("DB is connected");
 });
 mongoose_1.default.connect(auth, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("connected to mongoDB"));
+mongoose_1.default.set('useFindAndModify', false);
 exports.default = pool;

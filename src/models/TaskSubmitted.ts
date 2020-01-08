@@ -12,6 +12,14 @@ const TaskSubmittedSchema = new mongoose.Schema({
     },
 
     documents: {
+    },
+
+    state: {
+        type: String
+    },
+
+    descriptionChecked: {
+        type: String
     }
 });
 

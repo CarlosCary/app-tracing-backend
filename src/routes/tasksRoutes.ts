@@ -31,8 +31,13 @@ class TasksRoutes {
         this.router.post('/student/task', tasksController.addTaskStudent);
         this.router.post('/students', tasksController.assignTaskAllStudentsSubject);
         this.router.get('/all/:id_student', tasksController.getAllTaskStudentAvaliable);
+        this.router.get('/proffesor/all/:id_proffesor', tasksController.getAllTaskProffesorAvaliable);
         this.router.get('/form/:id_task', tasksController.getFormRequestedTask);
         this.router.post('/send', upload.array("fileDocument", 12),tasksController.sendTask);
+        this.router.get('/submitted/:id_task', tasksController.getTaskSubmitted);
+        this.router.get('/proffesor/:id_subject/:id_student', tasksController.getTasksSubmittedSubject);
+        this.router.post('/proffesor/checked', tasksController.taskChecked);
+
     }
 
 }

@@ -29,8 +29,12 @@ class TasksRoutes {
         this.router.post('/student/task', tasksController_1.tasksController.addTaskStudent);
         this.router.post('/students', tasksController_1.tasksController.assignTaskAllStudentsSubject);
         this.router.get('/all/:id_student', tasksController_1.tasksController.getAllTaskStudentAvaliable);
+        this.router.get('/proffesor/all/:id_proffesor', tasksController_1.tasksController.getAllTaskProffesorAvaliable);
         this.router.get('/form/:id_task', tasksController_1.tasksController.getFormRequestedTask);
         this.router.post('/send', upload.array("fileDocument", 12), tasksController_1.tasksController.sendTask);
+        this.router.get('/submitted/:id_task', tasksController_1.tasksController.getTaskSubmitted);
+        this.router.get('/proffesor/:id_subject/:id_student', tasksController_1.tasksController.getTasksSubmittedSubject);
+        this.router.post('/proffesor/checked', tasksController_1.tasksController.taskChecked);
     }
 }
 const tasksRoutes = new TasksRoutes();

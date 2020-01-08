@@ -2,6 +2,7 @@ import {Request, Response } from 'express';
 import pool from '../database';
 import { helpers } from './helpers';
 import Subject from '../models/SubjectModel';
+import Student from '../models/StudentModel';
 
 class SubjectsController {
 
@@ -110,6 +111,24 @@ class SubjectsController {
         try {  
             let proffesorSubjects:any = await Subject.find({ idProffesor: id_proffesor });
             res.json(proffesorSubjects);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getEnrolledStudentsData (req: Request, res: Response): Promise<any> { 
+        const { id_subject } = req.params;
+        console.log("este es el controlador");
+        console.log(id_subject);
+        try {  
+            let studentsEnrolled:any = await Subject.find({ _id: id_subject })
+                                                    .select('enrolledStudents');
+            let studentsEnrolledData:any = await Student.find({_id: 
+                                                            {
+                                                                $in: studentsEnrolled[0].enrolledStudents
+                                                            }})
+            res.json(studentsEnrolledData);
             
         } catch (error) {
             res.status(400).json({message: error });

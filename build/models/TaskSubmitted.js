@@ -13,7 +13,13 @@ const TaskSubmittedSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
-    documents: {}
+    documents: {},
+    state: {
+        type: String
+    },
+    descriptionChecked: {
+        type: String
+    }
 });
 const TaskSubmittedModel = mongoose_1.default.model('TaskSubmitted', TaskSubmittedSchema);
 exports.default = TaskSubmittedModel;

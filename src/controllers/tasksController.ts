@@ -33,7 +33,8 @@ class TasksController {
             visibilityDate: visibilityDate,
             students: studentsId[0].enrolledStudents,
             documentsRequested: documentsRequested,
-            formRequested: form
+            formRequested: form,
+            state: "undelivered"
         })
 
         try {
@@ -46,18 +47,6 @@ class TasksController {
     }
 
     public async addDocumentTask (req: Request, res: Response): Promise<void>{
-        // const { documentName } = req.body;
-        // const { idTask } = req.body;
-
-        // const newDocument = {
-        //     document_name: documentName,
-        //     id_task: idTask,
-        // }
-
-        // const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
-        
-        // res.json(result);
-
         //TODO
     }
 
@@ -113,7 +102,7 @@ class TasksController {
         
     }
 
-    public async getAllTaskStudentAvaliable(req: Request, res: Response): Promise<any> { 
+    public async getAllTaskStudentAvaliable (req: Request, res: Response): Promise<any> { 
         let todayDate = helpers.getDateToday();
         const { id_student } = req.params;
         try {
@@ -123,8 +112,6 @@ class TasksController {
             console.log(error);
             res.status(400).json({message: error });
         } 
-        // const studentsTasks = await pool.query( 'SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
-        // res.json(studentsTasks);
     }
 
     public async getFormRequestedTask(req: Request, res: Response): Promise<any> { 
@@ -151,7 +138,8 @@ class TasksController {
         const taskSubmitted = new TaskSubmitted ({
             idTask: idTask,
             idStudent: idStudent,
-            documents: paths
+            documents: paths,
+            state: "none"
         });
         
         try {
@@ -161,6 +149,83 @@ class TasksController {
         } catch (error) {
             res.status(400).json({message: error });
         }
+    }
+
+    public async getTaskSubmitted (req: Request, res: Response) { 
+        const { id_task } = req.params;
+
+        try {  
+            let taskSubmitted:any = await TaskSubmitted.find({ idTask: id_task });
+            res.json(taskSubmitted);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getTasksSubmittedSubject (req: Request, res: Response) { 
+        const { id_subject } = req.params;
+        const { id_student } = req.params;
+
+        try {  
+            let assignedTask:any = await Task.find({ idSubject: id_subject ,
+                                                    students: id_student});
+            // console.log(assignedTask);
+
+            let tasksSubmitted = [];
+
+            for(let i = 0; i < assignedTask.length; i ++) {
+                const taskSubmitted = await TaskSubmitted.find({idTask: assignedTask[i]._id});
+                tasksSubmitted.push(taskSubmitted[0]);
+            }
+            
+            const tasksAssignedAndSubmitted = {assignedTask, tasksSubmitted};
+            
+            res.json(tasksAssignedAndSubmitted);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async taskChecked (req: Request, res: Response) { 
+        const {idTaskSubmitted} = req.body;
+        const {taskSubmittedState} = req.body;
+        const {taskCheckedDescription} = req.body;
+        
+        try {  
+            let taskChecked:any = await TaskSubmitted.findByIdAndUpdate(idTaskSubmitted,
+                                                    {state: taskSubmittedState, 
+                                                    descriptionChecked: taskCheckedDescription});
+            res.json(taskChecked);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getAllTaskProffesorAvaliable (req: Request, res: Response): Promise<any> { 
+        let todayDate = helpers.getDateToday();
+        const { id_proffesor } = req.params;
+        try {
+            const proffesorSubjects = await Subject.find().where('idProffesor').equals(id_proffesor);
+            
+            let subjectsId:any = [];
+
+            proffesorSubjects.forEach(subject => {
+                subjectsId.push(subject._id);
+            })
+            console.log(subjectsId);
+
+            const proffesorTasks:any = await Task.find({idSubject: 
+                {
+                    $in: subjectsId
+                }});
+            res.json(proffesorTasks);
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
+        } 
     }
 }
 

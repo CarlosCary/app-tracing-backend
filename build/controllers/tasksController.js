@@ -44,7 +44,8 @@ class TasksController {
                 visibilityDate: visibilityDate,
                 students: studentsId[0].enrolledStudents,
                 documentsRequested: documentsRequested,
-                formRequested: form
+                formRequested: form,
+                state: "undelivered"
             });
             try {
                 const savedTask = yield task.save();
@@ -58,14 +59,6 @@ class TasksController {
     }
     addDocumentTask(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            // const { documentName } = req.body;
-            // const { idTask } = req.body;
-            // const newDocument = {
-            //     document_name: documentName,
-            //     id_task: idTask,
-            // }
-            // const result = await pool.query('INSERT INTO document_requested SET ?', [newDocument]);
-            // res.json(result);
             //TODO
         });
     }
@@ -125,8 +118,6 @@ class TasksController {
                 console.log(error);
                 res.status(400).json({ message: error });
             }
-            // const studentsTasks = await pool.query( 'SELECT * FROM subject_task JOIN students_tasks ON students_tasks.id_task=subject_task.id_task WHERE students_tasks.id_student=? and subject_task.deadline>?', [id_student, todayDate]);
-            // res.json(studentsTasks);
         });
     }
     getFormRequestedTask(req, res) {
@@ -153,13 +144,84 @@ class TasksController {
             const taskSubmitted = new TaskSubmitted_1.default({
                 idTask: idTask,
                 idStudent: idStudent,
-                documents: paths
+                documents: paths,
+                state: "none"
             });
             try {
                 const savedTaskSubmitted = yield taskSubmitted.save();
                 res.json(savedTaskSubmitted);
             }
             catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getTaskSubmitted(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_task } = req.params;
+            try {
+                let taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: id_task });
+                res.json(taskSubmitted);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getTasksSubmittedSubject(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_subject } = req.params;
+            const { id_student } = req.params;
+            try {
+                let assignedTask = yield TaskRequestedModel_1.default.find({ idSubject: id_subject,
+                    students: id_student });
+                // console.log(assignedTask);
+                let tasksSubmitted = [];
+                for (let i = 0; i < assignedTask.length; i++) {
+                    const taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: assignedTask[i]._id });
+                    tasksSubmitted.push(taskSubmitted[0]);
+                }
+                const tasksAssignedAndSubmitted = { assignedTask, tasksSubmitted };
+                res.json(tasksAssignedAndSubmitted);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    taskChecked(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { idTaskSubmitted } = req.body;
+            const { taskSubmittedState } = req.body;
+            const { taskCheckedDescription } = req.body;
+            try {
+                let taskChecked = yield TaskSubmitted_1.default.findByIdAndUpdate(idTaskSubmitted, { state: taskSubmittedState,
+                    descriptionChecked: taskCheckedDescription });
+                res.json(taskChecked);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getAllTaskProffesorAvaliable(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let todayDate = helpers_1.helpers.getDateToday();
+            const { id_proffesor } = req.params;
+            try {
+                const proffesorSubjects = yield SubjectModel_1.default.find().where('idProffesor').equals(id_proffesor);
+                let subjectsId = [];
+                proffesorSubjects.forEach(subject => {
+                    subjectsId.push(subject._id);
+                });
+                console.log(subjectsId);
+                const proffesorTasks = yield TaskRequestedModel_1.default.find({ idSubject: {
+                        $in: subjectsId
+                    } });
+                res.json(proffesorTasks);
+            }
+            catch (error) {
+                console.log(error);
                 res.status(400).json({ message: error });
             }
         });

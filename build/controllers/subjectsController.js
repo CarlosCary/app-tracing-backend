@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../database"));
 const helpers_1 = require("./helpers");
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
+const StudentModel_1 = __importDefault(require("../models/StudentModel"));
 class SubjectsController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -123,6 +124,24 @@ class SubjectsController {
             try {
                 let proffesorSubjects = yield SubjectModel_1.default.find({ idProffesor: id_proffesor });
                 res.json(proffesorSubjects);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getEnrolledStudentsData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_subject } = req.params;
+            console.log("este es el controlador");
+            console.log(id_subject);
+            try {
+                let studentsEnrolled = yield SubjectModel_1.default.find({ _id: id_subject })
+                    .select('enrolledStudents');
+                let studentsEnrolledData = yield StudentModel_1.default.find({ _id: {
+                        $in: studentsEnrolled[0].enrolledStudents
+                    } });
+                res.json(studentsEnrolledData);
             }
             catch (error) {
                 res.status(400).json({ message: error });
