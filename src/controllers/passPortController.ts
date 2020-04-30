@@ -1,4 +1,4 @@
-import pool from '../database';
+
 import passport from 'passport';
 import passportLocal from 'passport-local';
 

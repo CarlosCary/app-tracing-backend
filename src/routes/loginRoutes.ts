@@ -13,7 +13,13 @@ class LoginRoutes {
     config(): void {
         this.router.post('/signup', loginController.signup);
         this.router.post('/signin', loginController.signin);
-        
+        this.router.post('/proffesor/new', loginController.registerProffesor);
+        this.router.get('/proffesor/all', loginController.getProffesors);
+        this.router.get('/proffesor/:id_proffesor', loginController.getProffesor);
+        this.router.put('/proffesor/update', loginController.updateProffesor);
+        this.router.get('/account/:id_account', loginController.getDataAccount);
+        this.router.put('/account/update', loginController.updateAccount);
+        this.router.put('/account/update/password', loginController.updatePassword);
     }
 }
 

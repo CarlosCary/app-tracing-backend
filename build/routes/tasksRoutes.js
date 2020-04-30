@@ -24,10 +24,6 @@ class TasksRoutes {
     }
     config() {
         this.router.post('/new', tasksController_1.tasksController.createTask);
-        this.router.post('/document', tasksController_1.tasksController.addDocumentTask);
-        this.router.post('/form', tasksController_1.tasksController.addFormTask);
-        this.router.post('/student/task', tasksController_1.tasksController.addTaskStudent);
-        this.router.post('/students', tasksController_1.tasksController.assignTaskAllStudentsSubject);
         this.router.get('/all/:id_student', tasksController_1.tasksController.getAllTaskStudentAvaliable);
         this.router.get('/proffesor/all/:id_proffesor', tasksController_1.tasksController.getAllTaskProffesorAvaliable);
         this.router.get('/form/:id_task', tasksController_1.tasksController.getFormRequestedTask);
@@ -35,6 +31,13 @@ class TasksRoutes {
         this.router.get('/submitted/:id_task', tasksController_1.tasksController.getTaskSubmitted);
         this.router.get('/proffesor/:id_subject/:id_student', tasksController_1.tasksController.getTasksSubmittedSubject);
         this.router.post('/proffesor/checked', tasksController_1.tasksController.taskChecked);
+        this.router.get('/subject/:id_task/students', tasksController_1.tasksController.getStudentsAndTasksSubmitted);
+        this.router.get('/subjects/:id_student', tasksController_1.tasksController.getSubjectsTasksStudent);
+        this.router.get('/submitted/:id_task/:id_student', tasksController_1.tasksController.getTaskSubmittedData);
+        this.router.get('/submitted/:id_task/:id_student/:id_submitted', tasksController_1.tasksController.getTaskSubmittedData2);
+        this.router.get('/date/:id_task', tasksController_1.tasksController.getTaskDate);
+        this.router.put('/date/update', tasksController_1.tasksController.updateTaskDate);
+        this.router.get('/prueba', tasksController_1.tasksController.prueba);
     }
 }
 const tasksRoutes = new TasksRoutes();

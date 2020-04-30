@@ -19,7 +19,9 @@ const TaskSubmittedSchema = new mongoose_1.default.Schema({
     },
     descriptionChecked: {
         type: String
-    }
+    },
+    dateSend: {},
+    dateModify: {},
 });
 const TaskSubmittedModel = mongoose_1.default.model('TaskSubmitted', TaskSubmittedSchema);
 exports.default = TaskSubmittedModel;

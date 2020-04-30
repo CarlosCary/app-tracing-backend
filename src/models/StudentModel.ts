@@ -12,9 +12,18 @@ const StudentSchema = new mongoose.Schema({
         required: true
     },
 
+    email: {
+        type: String,
+        required: true
+    },
+
     password: {
         type: String,
         required: true
+    },
+
+    role: {
+        type: String
     }
 });
 const StudentModel = mongoose.model('Student', StudentSchema);

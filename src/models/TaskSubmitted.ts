@@ -20,7 +20,13 @@ const TaskSubmittedSchema = new mongoose.Schema({
 
     descriptionChecked: {
         type: String
-    }
+    },
+
+    dateSend: {
+    },
+
+    dateModify: {
+    },
 });
 
 const TaskSubmittedModel = mongoose.model('TaskSubmitted', TaskSubmittedSchema);

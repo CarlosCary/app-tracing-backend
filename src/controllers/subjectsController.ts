@@ -1,26 +1,14 @@
 import {Request, Response } from 'express';
-import pool from '../database';
-import { helpers } from './helpers';
+
+import { helpers } from '../utils/helpers';
 import Subject from '../models/SubjectModel';
 import Student from '../models/StudentModel';
 
 class SubjectsController {
 
     public async list (req: Request, res: Response){ 
-        const subjects = await pool.query("SELECT * FROM subjects");
-        res.json(subjects);
     }
 
-    
-    public async getOne (req: Request, res: Response): Promise<any>{ 
-        // const { id } = req.params;
-        // const games = await pool.query('SELECT * FROM games WHERE id = ?', [id]);
-        // if(games.length > 0) {
-        //     return res.json(games[0]);
-        // }
-        
-        // res.status(404).json({text: "not found game"});
-    }
 
     public async create (req: Request, res: Response): Promise<void>{
         const { subject_name } = req.body;
@@ -43,20 +31,7 @@ class SubjectsController {
         } catch (error) {
             res.status(400).json({message: error });
         }
-        // const result = await pool.query('INSERT INTO subjects SET ?', [newSubject]);
-        // res.json(newSubject);
-    }
-
-    public async update (req: Request, res: Response) {
-        // const { id } = req.params;
-        // await pool.query("UPDATE games set ? WHERE id = ?", [req.body, id]);
-        // res.json({text: "the game was updated"});
-    }
-
-    public async delete (req: Request, res: Response): Promise<void>{
-        // const { id } = req.params;
-        // await pool.query('DELETE FROM games WHERE id = ?', [id]);
-        // res.json({text: "the game was deleted"});
+        
     }
 
     public async enrolled(req: Request, res: Response): Promise<void> {
@@ -100,9 +75,34 @@ class SubjectsController {
                 res.status(400).json({message: error });
             }
         }
-    
-        // return res.json(studentSubjects);
-        // res.status(404).json({text: "not found game"});
+
+    }
+
+    public async getProffesorSubjects2(req: Request, res: Response): Promise<any> { 
+        const { id_proffesor } = req.params;
+        const { semester } = req.params;
+        const { year } = req.params;
+
+        if(semester != "null") {
+            try {  
+                let studentSubjects:any = await Subject.find({ idProffesor: id_proffesor })
+                                                        .where('year').equals(year)
+                                                        .where('semester').equals(semester);
+                res.json(studentSubjects);
+                
+            } catch (error) {
+                res.status(400).json({message: error });
+            }
+        }
+        else {
+            try {  
+                let proffesorSubjects:any = await Subject.find({ idProffesor: id_proffesor });
+                res.json(proffesorSubjects);   
+            } catch (error) {
+                res.status(400).json({message: error });
+            }    
+        }
+        
     }
 
     public async getProffesorSubjects(req: Request, res: Response): Promise<any> { 
@@ -116,6 +116,7 @@ class SubjectsController {
             res.status(400).json({message: error });
         }
     }
+
 
     public async getEnrolledStudentsData (req: Request, res: Response): Promise<any> { 
         const { id_subject } = req.params;

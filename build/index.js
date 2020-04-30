@@ -12,8 +12,15 @@ const loginRoutes_1 = __importDefault(require("./routes/loginRoutes"));
 const subjectsRoutes_1 = __importDefault(require("./routes/subjectsRoutes"));
 const tasksRoutes_1 = __importDefault(require("./routes/tasksRoutes"));
 const studentRoutes_1 = __importDefault(require("./routes/studentRoutes"));
-// import passport1 from './controllers/passPortController';
+const FormTaskRoutes_1 = __importDefault(require("./routes/FormTaskRoutes"));
 require("dotenv/config");
+const FormReviewRoutes_1 = __importDefault(require("./routes/FormReviewRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const answerReviewRoutes_1 = __importDefault(require("./routes/answerReviewRoutes"));
+const proffesorRoutes_1 = __importDefault(require("./routes/proffesorRoutes"));
+const ClassroomRoutes_1 = __importDefault(require("./routes/ClassroomRoutes"));
+const NotificationsRoutes_1 = __importDefault(require("./routes/NotificationsRoutes"));
+const mongoose_1 = __importDefault(require("mongoose"));
 class Server {
     constructor() {
         this.app = express_1.default();
@@ -37,15 +44,21 @@ class Server {
         this.app.use('/subjects', subjectsRoutes_1.default);
         this.app.use('/tasks', tasksRoutes_1.default);
         this.app.use('/student', studentRoutes_1.default);
+        this.app.use('/form/task', FormTaskRoutes_1.default);
+        this.app.use('/form/review', FormReviewRoutes_1.default);
+        this.app.use('/review', reviewRoutes_1.default);
+        this.app.use('/review/answer', answerReviewRoutes_1.default);
+        this.app.use('/proffesor', proffesorRoutes_1.default);
+        this.app.use('/classroom', ClassroomRoutes_1.default);
+        this.app.use('/notifications', NotificationsRoutes_1.default);
     }
     start() {
+        const auth = process.env.DB_CONNECTION;
+        mongoose_1.default.connect(auth, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("connected to mongoDB"));
+        mongoose_1.default.set('useFindAndModify', false);
         this.app.listen(this.app.get('port'), () => {
             console.log("Server on port ", this.app.get('port'));
         });
-        // mongoose.connect(this.auth,
-        //     { useNewUrlParser: true, useUnifiedTopology: true },
-        //     () => console.log("connected to mongoDB")
-        // );
     }
 }
 const server = new Server();

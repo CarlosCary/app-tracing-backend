@@ -9,14 +9,22 @@ import loginRoutes from './routes/loginRoutes';
 import subjectsRoutes from './routes/subjectsRoutes';
 import tasksRoutes from './routes/tasksRoutes';
 import studentRoutes from './routes/studentRoutes';
+import formTaskRoutes from './routes/FormTaskRoutes';
+
+import 'dotenv/config';
+import formReviewRoutes from './routes/FormReviewRoutes';
+import reviewRoutes from './routes/reviewRoutes';
+import answerReviewRoutes from './routes/answerReviewRoutes';
+import proffesorRoutes from './routes/proffesorRoutes';
+import classroomRoutes from './routes/ClassroomRoutes';
+import notificationsRoutes from './routes/NotificationsRoutes';
 
 import mongoose from 'mongoose';
-// import passport1 from './controllers/passPortController';
-import 'dotenv/config';
 
 class Server {
     public app: Application;
     public auth: any;
+    
     constructor() {
         this.app = express();
         this.config();
@@ -41,17 +49,25 @@ class Server {
         this.app.use('/subjects', subjectsRoutes);
         this.app.use('/tasks', tasksRoutes);
         this.app.use('/student', studentRoutes);
+        this.app.use('/form/task', formTaskRoutes);
+        this.app.use('/form/review', formReviewRoutes);
+        this.app.use('/review', reviewRoutes);
+        this.app.use('/review/answer', answerReviewRoutes);
+        this.app.use('/proffesor', proffesorRoutes);
+        this.app.use('/classroom', classroomRoutes);
+        this.app.use('/notifications', notificationsRoutes);
     }
 
     start(): void {
+        const auth:any = process.env.DB_CONNECTION;
+        mongoose.connect(auth,
+            { useNewUrlParser: true, useUnifiedTopology: true },
+            () => console.log("connected to mongoDB")
+        );
+        mongoose.set('useFindAndModify', false);
         this.app.listen(this.app.get('port'), () => {
             console.log("Server on port ", this.app.get('port'));
         });
-
-        // mongoose.connect(this.auth,
-        //     { useNewUrlParser: true, useUnifiedTopology: true },
-        //     () => console.log("connected to mongoDB")
-        // );
     }
 }
 

@@ -12,11 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const database_1 = __importDefault(require("../database"));
-const helpers_1 = require("./helpers");
+const helpers_1 = require("../utils/helpers");
 const TaskRequestedModel_1 = __importDefault(require("../models/TaskRequestedModel"));
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
 const TaskSubmitted_1 = __importDefault(require("../models/TaskSubmitted"));
+const StudentModel_1 = __importDefault(require("../models/StudentModel"));
+const ReviewModel_1 = __importDefault(require("../models/ReviewModel"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
+require("dotenv/config");
 // import multer from 'multer';
 // const upload = multer({dest: 'upload/'});
 class TasksController {
@@ -36,13 +39,60 @@ class TasksController {
             const { formDescriptions } = req.body;
             const form = { tittleForm: formTittles, descriptionForm: formDescriptions };
             //this gets studentsId array and id of subject, we need just studentsId Array
-            const studentsId = yield SubjectModel_1.default.where('_id').gte(idSubject).select('enrolledStudents');
+            const studentsId = yield SubjectModel_1.default.findById(idSubject).select('enrolledStudents -_id');
+            console.log("studentsId: ");
+            console.log(studentsId);
+            const mailStudents = yield StudentModel_1.default.find({ _id: {
+                    $in: studentsId.enrolledStudents
+                } }).select('email -_id');
+            let destinationEmails = [];
+            for (let i = 0; i < mailStudents.length; i++) {
+                destinationEmails.push(mailStudents[i].email);
+            }
+            console.log(destinationEmails);
+            const transporter = nodemailer_1.default.createTransport({
+                service: 'gmail',
+                //Configurar en el server
+                // host: process.env.HOST_MAIL_SERVICE,
+                // port: process.env.PORT_MAIL_SERVICE,
+                auth: {
+                    user: process.env.USER_MAIL_SERVICE,
+                    pass: process.env.PASSWORD_MAIL_SERVICE
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            const message = {
+                from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <doc.reviewer@gmail.com>",
+                to: destinationEmails,
+                subject: 'Documento asignado para revisar',
+                html: `<h2>Asignación de tribunal</h2>
+                    <p>
+                        ¡Hola!, se le ha asignado una nueva tarea.
+                    </p>
+                    <p>
+                        Por favor ingrese al sistema de revisión de documentos académicos.
+                    </p>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Ucatolica2.jpg/360px-Ucatolica2.jpg">
+                    ` // Plain text body
+            };
+            //DESCOMENTAR CUANDO ESTE EN EL SERVER 
+            // transporter.sendMail(message, function(err:any, info:any) {
+            //     if (err) {
+            //         res.json({message: err});
+            //     } 
+            //     else {
+            //         res.json({message: info});
+            //     }
+            // });
             const task = new TaskRequestedModel_1.default({
                 idSubject: idSubject,
                 name: taskName,
-                deadline: deadline,
-                visibilityDate: visibilityDate,
-                students: studentsId[0].enrolledStudents,
+                //save date in MMDDYYYY format
+                deadline: helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(deadline),
+                visibilityDate: helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(visibilityDate),
+                students: studentsId.enrolledStudents,
                 documentsRequested: documentsRequested,
                 formRequested: form,
                 state: "undelivered"
@@ -57,53 +107,9 @@ class TasksController {
             }
         });
     }
-    addDocumentTask(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            //TODO
-        });
-    }
-    addFormTask(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { formTittle } = req.body;
-            const { formDesciption } = req.body;
-            const { idTask } = req.body;
-            const newForm = {
-                form_tittle: formTittle,
-                form_description: formDesciption,
-                id_task: idTask,
-            };
-            const result = yield database_1.default.query('INSERT INTO form_task SET ?', [newForm]);
-            res.json(result);
-        });
-    }
-    addTaskStudent(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { idStudent } = req.body;
-            const { idTask } = req.body;
-            const newTaskStudent = {
-                id_student: idStudent,
-                id_task: idTask
-            };
-            const result = yield database_1.default.query('INSERT INTO students_tasks SET ?', [newTaskStudent]);
-            res.json(result);
-        });
-    }
     delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO
-        });
-    }
-    assignTaskAllStudentsSubject(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { id_subject } = req.body;
-            const { id_task } = req.body;
-            const studentsIds = yield database_1.default.query('SELECT enrolled_students.id_student FROM enrolled_students WHERE enrolled_students.id_subject = ?', [id_subject]);
-            let newTaskManyStudents = [];
-            for (let i = 0; i < studentsIds.length; i++) {
-                newTaskManyStudents.push([id_task, studentsIds[i].id_student]);
-            }
-            const taskStudents = yield database_1.default.query('INSERT INTO students_tasks (id_task, id_student) VALUES ?', [newTaskManyStudents]);
-            res.json(taskStudents);
         });
     }
     getAllTaskStudentAvaliable(req, res) {
@@ -124,8 +130,73 @@ class TasksController {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_task } = req.params;
             try {
-                const formTask = yield TaskRequestedModel_1.default.where('_id').gte(id_task);
+                // const taskSubmittedData:any = await TaskSubmitted.find({id_task: id_task});
+                // console.log(taskSubmittedData);
+                const formTask = yield TaskRequestedModel_1.default.findById(id_task);
                 res.json(formTask);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getTaskSubmittedData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_task } = req.params;
+            const { id_student } = req.params;
+            try {
+                const formTask = yield TaskRequestedModel_1.default.findById(id_task);
+                const taskSubmittedData = yield TaskSubmitted_1.default.find({ idTask: id_task,
+                    idStudent: id_student });
+                let idsTaskSubmitteds = [];
+                for (let i = 0; i < taskSubmittedData.length; i++) {
+                    idsTaskSubmitteds.push(taskSubmittedData[i]._id);
+                }
+                const studentName = yield StudentModel_1.default.findById(taskSubmittedData[0].idStudent).select('name -_id');
+                const reviews = yield ReviewModel_1.default.find({ idSubmittedTask: {
+                        $in: idsTaskSubmitteds
+                    } })
+                    .select('idSubmittedTask');
+                let idsReviewAssigned = [];
+                let isReviewFound;
+                for (let i = 0; i < taskSubmittedData.length; i++) {
+                    isReviewFound = false;
+                    for (let j = 0; j < reviews.length; j++) {
+                        if (String(taskSubmittedData[i]._id) === reviews[j].idSubmittedTask) {
+                            idsReviewAssigned.push(reviews[j]._id);
+                            isReviewFound = true;
+                            break;
+                        }
+                    }
+                    if (!isReviewFound)
+                        idsReviewAssigned.push(null);
+                }
+                taskSubmittedData[0].author = studentName.name;
+                res.json({ formTask, taskSubmittedData: taskSubmittedData,
+                    author: studentName.name, idsReviewAssigned });
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getTaskSubmittedData2(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_task } = req.params;
+            const { id_student } = req.params;
+            const { id_submitted } = req.params;
+            // console.log("id_submitted");
+            // console.log(id_submitted);
+            try {
+                const formTask = yield TaskRequestedModel_1.default.findById(id_task);
+                console.log('se encontro la tarea');
+                const taskSubmittedData = yield TaskSubmitted_1.default.findById(id_submitted);
+                console.log('Tarea entregada wey:');
+                console.log(taskSubmittedData);
+                const studentName = yield StudentModel_1.default.findById(taskSubmittedData.idStudent).select('name -_id');
+                console.log('Datos del estudiante');
+                taskSubmittedData.author = studentName.name;
+                res.json({ formTask, taskSubmittedData: taskSubmittedData, author: studentName.name });
             }
             catch (error) {
                 res.status(400).json({ message: error });
@@ -137,6 +208,7 @@ class TasksController {
             const { idTask } = req.body;
             const { idStudent } = req.body;
             const documents = req.files;
+            const dateSend = helpers_1.helpers.getDateToday();
             let paths = [];
             documents.map(function (document) {
                 paths.push(document.path);
@@ -145,7 +217,9 @@ class TasksController {
                 idTask: idTask,
                 idStudent: idStudent,
                 documents: paths,
-                state: "none"
+                state: "none",
+                dateSend: dateSend,
+                dateModify: dateSend
             });
             try {
                 const savedTaskSubmitted = yield taskSubmitted.save();
@@ -160,8 +234,12 @@ class TasksController {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_task } = req.params;
             try {
-                let taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: id_task });
-                res.json(taskSubmitted);
+                console.log("antes de la llamada ");
+                let taskSubmitted = yield TaskSubmitted_1.default.findById(id_task);
+                console.log("despues");
+                console.log(taskSubmitted);
+                let studentName = yield StudentModel_1.default.findById(taskSubmitted.idStudent).select('name -_id');
+                res.json({ taskSubmitted: taskSubmitted, author: studentName });
             }
             catch (error) {
                 res.status(400).json({ message: error });
@@ -178,7 +256,8 @@ class TasksController {
                 // console.log(assignedTask);
                 let tasksSubmitted = [];
                 for (let i = 0; i < assignedTask.length; i++) {
-                    const taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: assignedTask[i]._id });
+                    const taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: assignedTask[i]._id,
+                        idStudent: id_student });
                     tasksSubmitted.push(taskSubmitted[0]);
                 }
                 const tasksAssignedAndSubmitted = { assignedTask, tasksSubmitted };
@@ -214,16 +293,150 @@ class TasksController {
                 proffesorSubjects.forEach(subject => {
                     subjectsId.push(subject._id);
                 });
-                console.log(subjectsId);
                 const proffesorTasks = yield TaskRequestedModel_1.default.find({ idSubject: {
                         $in: subjectsId
                     } });
+                //change format date to Bolivia
+                for (let i = 0; i < proffesorTasks.length; i++) {
+                    proffesorTasks[i].deadline = helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(proffesorTasks[i].deadline);
+                    proffesorTasks[i].visibilityDate = helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(proffesorTasks[i].visibilityDate);
+                }
                 res.json(proffesorTasks);
             }
             catch (error) {
                 console.log(error);
                 res.status(400).json({ message: error });
             }
+        });
+    }
+    getStudentsAndTasksSubmitted(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_task } = req.params;
+            let studentsTasks = [];
+            try {
+                const taskData = yield TaskRequestedModel_1.default.findById(id_task);
+                const studentsSubject = yield SubjectModel_1.default.findById(taskData.idSubject).
+                    select('enrolledStudents -_id');
+                const studentsData = yield StudentModel_1.default.find({ _id: {
+                        $in: studentsSubject.enrolledStudents
+                    } }).
+                    select('name');
+                const tasksSubmitted = yield TaskSubmitted_1.default.find({ idStudent: {
+                        $in: studentsSubject.enrolledStudents
+                    },
+                    idTask: id_task
+                });
+                let isTaskSubmitted;
+                for (let i = 0; i < studentsData.length; i++) {
+                    isTaskSubmitted = false;
+                    for (let j = 0; j < tasksSubmitted.length; j++) {
+                        if (studentsData[i]._id == tasksSubmitted[j].idStudent) {
+                            isTaskSubmitted = true;
+                            console.log(tasksSubmitted[j]);
+                            const reviewAssigned = yield ReviewModel_1.default.find({ idSubmittedTask: tasksSubmitted[j]._id });
+                            //Devolvera true si hay revisores asignados y false si no existen revisores en el campo 'reviewAssigned'
+                            studentsTasks.push({ student: studentsData[i], taskSubmitted: tasksSubmitted[j], reviewAssigned: reviewAssigned != 0 });
+                        }
+                    }
+                    if (!isTaskSubmitted)
+                        studentsTasks.push({ student: studentsData[i], taskSubmitted: null });
+                }
+                res.json(studentsTasks);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getSubjectsTasksStudent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_student } = req.params;
+            let tasksSubjects = [];
+            const dateToday = helpers_1.helpers.getDateTodayEngFormat();
+            try {
+                let subjectsData = yield SubjectModel_1.default.find({ enrolledStudents: id_student });
+                for (let i = 0; i < subjectsData.length; i++) {
+                    let tasksSubject = yield TaskRequestedModel_1.default.find({ idSubject: subjectsData[i]._id,
+                        deadline: { $gte: dateToday },
+                        visibilityDate: { $lte: dateToday }
+                    });
+                    for (let j = 0; j < tasksSubject.length; j++) {
+                        tasksSubject[j].deadline = helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(tasksSubject[j].deadline);
+                        tasksSubject[j].visibilityDate = helpers_1.helpers.changeDateFormatDDMMYYYtoMMDDYYYY(tasksSubject[j].visibilityDate);
+                    }
+                    tasksSubjects.push({ subject: subjectsData[i], tasksSubject: tasksSubject });
+                }
+                res.json(tasksSubjects);
+            }
+            catch (error) {
+                res.json({ message: error });
+            }
+        });
+    }
+    getTaskDate(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_task } = req.params;
+            try {
+                let subjectsData = yield TaskRequestedModel_1.default.findById(id_task).select('deadline -_id');
+                res.json(subjectsData);
+            }
+            catch (error) {
+                res.json({ message: error });
+            }
+        });
+    }
+    updateTaskDate(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { idTask } = req.body;
+            const { deadline } = req.body;
+            const newDeadline = { deadline };
+            try {
+                const updateFormTask = yield TaskRequestedModel_1.default.findByIdAndUpdate(idTask, newDeadline);
+                res.json(updateFormTask);
+            }
+            catch (error) {
+                res.json({ message: error });
+            }
+        });
+    }
+    prueba(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transporter = nodemailer_1.default.createTransport({
+                service: 'gmail',
+                //Configurar en el server
+                // host: process.env.HOST_MAIL_SERVICE,
+                // port: process.env.PORT_MAIL_SERVICE,
+                auth: {
+                    user: process.env.USER_MAIL_SERVICE,
+                    pass: process.env.PASSWORD_MAIL_SERVICE
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            const userName = "Juan Perez";
+            const message = {
+                from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <doc.reviewer@gmail.com>",
+                to: ['gary7412@hotmail.com', 'carlos.jorge7412@gmail.com'],
+                subject: 'Documento asignado para revisar',
+                html: `<h2>Asignación de tribunal</h2>
+                    <p>
+                        ¡Hola!, ha sido asignado como parte del tribunal de revisión de un documento.
+                    </p>
+                    <p>
+                        Por favor ingrese al sistema de revisión de documentos académicos.
+                    </p>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Ucatolica2.jpg/360px-Ucatolica2.jpg">
+                    ` // Plain text body
+            };
+            transporter.sendMail(message, function (err, info) {
+                if (err) {
+                    res.json({ message: err });
+                }
+                else {
+                    res.json({ message: info });
+                }
+            });
         });
     }
 }

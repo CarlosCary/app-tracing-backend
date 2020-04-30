@@ -12,25 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const database_1 = __importDefault(require("../database"));
-const helpers_1 = require("./helpers");
+const helpers_1 = require("../utils/helpers");
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
 const StudentModel_1 = __importDefault(require("../models/StudentModel"));
 class SubjectsController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const subjects = yield database_1.default.query("SELECT * FROM subjects");
-            res.json(subjects);
-        });
-    }
-    getOne(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // const { id } = req.params;
-            // const games = await pool.query('SELECT * FROM games WHERE id = ?', [id]);
-            // if(games.length > 0) {
-            //     return res.json(games[0]);
-            // }
-            // res.status(404).json({text: "not found game"});
         });
     }
     create(req, res) {
@@ -54,22 +41,6 @@ class SubjectsController {
             catch (error) {
                 res.status(400).json({ message: error });
             }
-            // const result = await pool.query('INSERT INTO subjects SET ?', [newSubject]);
-            // res.json(newSubject);
-        });
-    }
-    update(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // const { id } = req.params;
-            // await pool.query("UPDATE games set ? WHERE id = ?", [req.body, id]);
-            // res.json({text: "the game was updated"});
-        });
-    }
-    delete(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // const { id } = req.params;
-            // await pool.query('DELETE FROM games WHERE id = ?', [id]);
-            // res.json({text: "the game was deleted"});
         });
     }
     enrolled(req, res) {
@@ -114,8 +85,33 @@ class SubjectsController {
                     res.status(400).json({ message: error });
                 }
             }
-            // return res.json(studentSubjects);
-            // res.status(404).json({text: "not found game"});
+        });
+    }
+    getProffesorSubjects2(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_proffesor } = req.params;
+            const { semester } = req.params;
+            const { year } = req.params;
+            if (semester != "null") {
+                try {
+                    let studentSubjects = yield SubjectModel_1.default.find({ idProffesor: id_proffesor })
+                        .where('year').equals(year)
+                        .where('semester').equals(semester);
+                    res.json(studentSubjects);
+                }
+                catch (error) {
+                    res.status(400).json({ message: error });
+                }
+            }
+            else {
+                try {
+                    let proffesorSubjects = yield SubjectModel_1.default.find({ idProffesor: id_proffesor });
+                    res.json(proffesorSubjects);
+                }
+                catch (error) {
+                    res.status(400).json({ message: error });
+                }
+            }
         });
     }
     getProffesorSubjects(req, res) {

@@ -1,36 +1,29 @@
 import {Request, Response } from 'express';
 const passportConfig = require('./passPortController');
-// const passport = require ('passport');
+
 import passport from 'passport';
-import pool from '../database';
-import { helpers } from './helpers';
+
+import { helpers } from '../utils/helpers';
 import Student from '../models/StudentModel';
+import Proffesor from '../models/ProffesorModel';
+import Notifications from '../models/NotificationsModel';
+import mongoose from '../database';
 
 class LoginController {
 
     public async signup (req: Request, res: Response){ 
-        
-        // const { username } = req.body;
-        // const { password } = req.body;
-
-        // const newUser = {
-        //     username,
-        //     password
-        // }
-        
-        // newUser.password = await helpers.encryptPassword(password);
-
-        // const result = await pool.query('INSERT INTO Users SET ?', [newUser]);
-        // res.json(newUser);
-
         const student = new Student({
             name: req.body.name,
             username: req.body.username,
+            email: req.body.email,
             password: await helpers.encryptPassword(req.body.password),
+            role: "student"
+
         })
         
         try {
             const savedStudent = await student.save();
+            console.log(savedStudent);
             res.json(savedStudent);
         } catch (error) {
             res.status(400).json({message: error });
@@ -40,65 +33,211 @@ class LoginController {
     public async signin(req: Request, res: Response) {
         const { username } = req.body;
         const { password } = req.body;
-        /*
-        const newUser = {
-            username,
-            password
-        }
-
-        
-        
-        const rows = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
-
-        if(rows.length > 0) {
-            const user = rows[0];
-            const validPassword = await helpers.matchPassword(password, user.password);
-            console.log("hay el usuario");
-            if(validPassword) {
-                //TODO: jsonwebtoken to manage permissions
-                return res.status(200).json({
-                    message: "Auth successful",
-                    id: rows[0].id,
-                    user: rows[0]
-                });
-            }
-            else {
-                res.status(401).json({
-                    message: "Auth failed"
-                });
-            }
-        }
-
-        else {
-            console.log("NO hay el usuario");
-            res.status(401).json({
-                message: "Auth failed"
-            });
-        }
-
-        */
-        
-        
-
-        
+        const { email } = req.body;
         try {  
-            let user:any = await Student.findOne({ username: req.body.username });
+            let user:any = await Student.findOne({ username: username });
             if(user) {
+                
                 const validPassword:boolean = await helpers.matchPassword(password, user.password);
                 if(validPassword) {
                     res.json({
                         id: user._id, 
                         user: user
                     });
+                } 
+                else {
+                    res.status(401).json({
+                        message: "Auth failed"
+                    });
                 }
             }
-            res.status(401).json({
-                message: "Auth failed"
-            });
+            else {
+                user = await Proffesor.findOne({ email: email });
+                if(user) {
+                    const validPassword:boolean = await helpers.matchPassword(password, user.password);
+                    if(validPassword) {
+                        res.json({
+                            id: user._id, 
+                            user: user
+                        });
+                    }
+                } 
+                else {
+                    return res.status(401).json({
+                        message: "Auth failed"
+                    });
+                }
+            }
+            
             
             
         } catch (error) {
             res.status(400).json({message: error });
+        }
+    }
+
+    public async getProffesorsList(req: Request, res: Response) {
+        const { career } = req.params;
+        try {  
+            let proffesors:any = await Student.find({ role: 'proffesor' }).select('name');
+            res.json(proffesors);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getProffesors(req: Request, res: Response) {
+        try {  
+            let proffesors:any = await Proffesor.find().select('name email role career');
+            res.json(proffesors);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async registerProffesor(req: Request, res: Response) {
+        const proffesor = new Proffesor({
+            name: req.body.name,
+            career: req.body.career,
+            role: req.body.role,
+            academicDegree: req.body.academicDegree,
+            email: req.body.email,
+            password: await helpers.encryptPassword(req.body.password),
+        })
+        
+        try {
+            const savedProffesor = await proffesor.save();
+            const notificationsProffesor = new Notifications({
+                idProffesor: savedProffesor._id,
+                director: 0,
+                rapporteur: 0,
+                tutor: 0
+            })
+            notificationsProffesor.save();
+            
+            res.json(savedProffesor);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+    
+    public async getProffesor(req: Request, res: Response) {
+        //asd
+        const { id_proffesor } = req.params;
+
+        try {  
+            let proffesor:any = await Proffesor.findById(id_proffesor);
+            res.json(proffesor);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async updateProffesor(req: Request, res: Response): Promise<any> {
+        const { idProffesor } = req.body;
+        const { name } = req.body;
+        const { career } = req.body;
+        const { role } = req.body;
+        const { academicDegree } = req.body;
+        
+
+        try {
+            const updateProffesor = await Proffesor.findByIdAndUpdate(idProffesor, { name, career, role, academicDegree });
+            res.json(updateProffesor);
+        }
+
+        catch (error) {
+            res.json ({message: error});
+        }
+    }
+
+    public async getDataAccount(req: Request, res: Response): Promise<any> {
+        const { id_account } = req.params;
+        
+        try {
+            const dataAccountProffesor = await Proffesor.findById(id_account).select('-password');
+            if(!dataAccountProffesor) {
+                const dataAccountStudent = await Student.findById(id_account).select('-password');
+                res.json(dataAccountStudent);
+            }
+            else 
+                res.json(dataAccountProffesor);
+        }
+        catch (error) {
+            res.json ({message: error});
+        }
+    }
+
+    public async updateAccount(req: Request, res: Response): Promise<any> {
+        const { idAccount } = req.body;
+        const { name } = req.body;
+        const { email } = req.body;
+        const { role } = req.body;
+        
+        
+        if(role === 'proffesor') {
+            try {
+                const updateProffesor = await Proffesor.findByIdAndUpdate(idAccount, { name, email });
+                res.json(updateProffesor);
+            }
+            catch (error) {
+                res.json ({message: error});
+            }
+        }
+        if(role === 'student') {
+            try {
+                const updateStudent= await Student.findByIdAndUpdate(idAccount, { name, email });
+                res.json(updateStudent);
+            }    
+            catch (error) {
+                res.json ({message: error});
+            }
+        }
+    }
+
+    public async updatePassword(req: Request, res: Response): Promise<any> {
+        const { idAccount } = req.body;
+        const { currentPassword } = req.body;
+        const { newPassword } = req.body;
+        const { role } = req.body;
+        
+        console.log(idAccount);
+        console.log(currentPassword);
+        console.log(newPassword);
+        console.log(role);
+
+        if(role === 'proffesor') {
+            try {
+                const verifyPassword:any = await Proffesor.findById(idAccount).select('password -_id');
+                const validPassword:boolean = await helpers.matchPassword(currentPassword, verifyPassword.password);
+                if(validPassword) {
+                    const passwordEncripted = await helpers.encryptPassword(newPassword);
+                    const updateProffesor = await Proffesor.findByIdAndUpdate(idAccount, {password: passwordEncripted});
+                    res.json(updateProffesor);
+                }
+                else
+                    res.status(401).json({message: 'invalid password'});
+            }
+            catch (error) {
+                res.json ({message: error});
+            }
+        }
+        if(role === 'student') {
+            try {
+                const verifyPassword:any = await Student.findById(idAccount).select('password -_id');
+                const validPassword:boolean = await helpers.matchPassword(currentPassword, verifyPassword.password);
+                if(validPassword) {
+                    const passwordEncripted = await helpers.encryptPassword(newPassword);
+                    const updateStudent = await Student.findByIdAndUpdate(idAccount, {password: passwordEncripted});
+                    res.json(updateStudent);
+                }
+                else
+                    res.status(401).json({message: 'invalid password'});
+                
+            }    
+            catch (error) {
+                res.json ({message: error});
+            }
         }
     }
 }
