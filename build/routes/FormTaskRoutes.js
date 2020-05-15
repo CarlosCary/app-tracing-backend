@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const FormTaskController_1 = require("../controllers/FormTaskController");
+const FormTaskController_1 = require("../controllers/formTaskController");
 class FormTaskRoutes {
     constructor() {
         this.router = express_1.Router();
