@@ -12,8 +12,6 @@ class ClassroomRoutes {
 
     config(): void {
         this.router.post('/new', classroomController.create);
-        // this.router.get('/:id_proffesor/:id_review', answerReviewController.getAnswerReviewProffesor);
-        // this.router.get('/all/:id_review', answerReviewController.getAnswersReviewProffesors);
     }
 }
 

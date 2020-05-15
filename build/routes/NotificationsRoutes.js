@@ -13,8 +13,6 @@ class NotificationsRoutes {
         this.router.put('/proffesors/clear/tutor', NotificationsController_1.notificationsController.clearTutorNotifications);
         this.router.put('/proffesors/clear/rapporteur', NotificationsController_1.notificationsController.clearRapporteurNotifications);
         this.router.put('/proffesors/clear/all', NotificationsController_1.notificationsController.clearAllNotifications);
-        // this.router.get('/:id_proffesor/:id_review', answerReviewController.getAnswerReviewProffesor);
-        // this.router.get('/all/:id_review', answerReviewController.getAnswersReviewProffesors);
     }
 }
 const notificationsRoutes = new NotificationsRoutes();
