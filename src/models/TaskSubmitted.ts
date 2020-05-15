@@ -11,6 +11,11 @@ const TaskSubmittedSchema = new mongoose.Schema({
         required: true
     },
 
+    idSubject: {
+        type: String,
+        required: true
+    },
+
     documents: {
     },
 

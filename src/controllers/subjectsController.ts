@@ -39,8 +39,19 @@ class SubjectsController {
         const { id_student } = req.body;
         const { subject_code } = req.body;
         try {  
+            let isStudentEnrolled:any = await Subject.find({ subjectCode: subject_code, enrolledStudents: id_student});
+            
+            if(isStudentEnrolled.length)
+                res.status(400).json({message: "Ya esta inscrito a esta materia"});
+            
             let newEnrolled:any = await Subject.updateOne({ subjectCode: subject_code }, { $push: {enrolledStudents: id_student}});
-            res.json(newEnrolled);
+            
+            if(newEnrolled.nModified > 0)
+                res.json(newEnrolled);
+            
+            else {
+                res.status(400).json({message: "Código incorrecto"});
+            }
             
         } catch (error) {
             res.status(400).json({message: error });

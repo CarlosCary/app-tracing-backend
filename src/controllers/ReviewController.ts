@@ -24,6 +24,8 @@ class ReviewController {
         
         try {
             const savedReview = await review.save();
+            const assignReview = await TaskSubmitted.findByIdAndUpdate(idSubmittedTask, {state: 'reviewersAssigned'});
+            
             res.json(savedReview);
         } catch (error) {
             res.status(400).json({message: error });

@@ -22,14 +22,18 @@ class LoginController {
         return __awaiter(this, void 0, void 0, function* () {
             const student = new StudentModel_1.default({
                 name: req.body.name,
-                username: req.body.username,
                 email: req.body.email,
                 password: yield helpers_1.helpers.encryptPassword(req.body.password),
                 role: "student"
             });
             try {
+                const isAccountRegister = yield StudentModel_1.default.findOne({ email: req.body.email });
+                if (isAccountRegister) {
+                    res.status(401).json({
+                        message: "El correo electrónico ya fue registrado"
+                    });
+                }
                 const savedStudent = yield student.save();
-                console.log(savedStudent);
                 res.json(savedStudent);
             }
             catch (error) {
@@ -39,11 +43,10 @@ class LoginController {
     }
     signin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username } = req.body;
             const { password } = req.body;
             const { email } = req.body;
             try {
-                let user = yield StudentModel_1.default.findOne({ username: username });
+                let user = yield StudentModel_1.default.findOne({ email: email });
                 if (user) {
                     const validPassword = yield helpers_1.helpers.matchPassword(password, user.password);
                     if (validPassword) {
@@ -54,7 +57,11 @@ class LoginController {
                     }
                     else {
                         res.status(401).json({
-                            message: "Auth failed"
+                            message: "Auth failed",
+                            data: {
+                                invalidEmail: false,
+                                invalidPassword: true
+                            }
                         });
                     }
                 }
@@ -68,16 +75,33 @@ class LoginController {
                                 user: user
                             });
                         }
+                        return res.status(401).json({
+                            message: "Auth failed",
+                            data: {
+                                invalidEmail: false,
+                                invalidPassword: true
+                            }
+                        });
                     }
                     else {
                         return res.status(401).json({
-                            message: "Auth failed"
+                            message: "Auth failed",
+                            data: {
+                                invalidEmail: true,
+                                invalidPassword: false
+                            }
                         });
                     }
                 }
             }
             catch (error) {
-                res.status(400).json({ message: error });
+                res.status(error.httpStatusCode).json({
+                    message: "Auth Failed",
+                    data: {
+                        invalidEmail: true,
+                        invalidPassword: false
+                    }
+                });
             }
         });
     }

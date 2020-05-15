@@ -34,6 +34,7 @@ class ReviewController {
             });
             try {
                 const savedReview = yield review.save();
+                const assignReview = yield TaskSubmitted_1.default.findByIdAndUpdate(idSubmittedTask, { state: 'reviewersAssigned' });
                 res.json(savedReview);
             }
             catch (error) {

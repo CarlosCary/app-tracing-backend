@@ -207,6 +207,7 @@ class TasksController {
         return __awaiter(this, void 0, void 0, function* () {
             const { idTask } = req.body;
             const { idStudent } = req.body;
+            const { idSubject } = req.body;
             const documents = req.files;
             const dateSend = helpers_1.helpers.getDateToday();
             let paths = [];
@@ -216,6 +217,7 @@ class TasksController {
             const taskSubmitted = new TaskSubmitted_1.default({
                 idTask: idTask,
                 idStudent: idStudent,
+                idSubject: idSubject,
                 documents: paths,
                 state: "none",
                 dateSend: dateSend,
@@ -250,18 +252,17 @@ class TasksController {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_subject } = req.params;
             const { id_student } = req.params;
+            let tasksName = [];
             try {
-                let assignedTask = yield TaskRequestedModel_1.default.find({ idSubject: id_subject,
-                    students: id_student });
-                // console.log(assignedTask);
-                let tasksSubmitted = [];
-                for (let i = 0; i < assignedTask.length; i++) {
-                    const taskSubmitted = yield TaskSubmitted_1.default.find({ idTask: assignedTask[i]._id,
-                        idStudent: id_student });
-                    tasksSubmitted.push(taskSubmitted[0]);
+                let tasksSubmitted = yield TaskSubmitted_1.default.find({ idSubject: id_subject,
+                    idStudent: id_student })
+                    .select('-documents -dateModify');
+                for (let i = 0; i < tasksSubmitted.length; i++) {
+                    let task = yield TaskRequestedModel_1.default.findById(tasksSubmitted[i].idTask);
+                    tasksName.push(task.name);
                 }
-                const tasksAssignedAndSubmitted = { assignedTask, tasksSubmitted };
-                res.json(tasksAssignedAndSubmitted);
+                console.log({ tasksName, tasksSubmitted });
+                res.json({ tasksName, tasksSubmitted });
             }
             catch (error) {
                 res.status(400).json({ message: error });
