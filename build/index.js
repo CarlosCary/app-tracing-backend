@@ -16,7 +16,7 @@ const FormTaskRoutes_1 = __importDefault(require("./routes/FormTaskRoutes"));
 require("dotenv/config");
 const FormReviewRoutes_1 = __importDefault(require("./routes/FormReviewRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/ReviewRoutes"));
-const answerReviewRoutes_1 = __importDefault(require("./routes/answerReviewRoutes"));
+const answerReviewRoutes_1 = __importDefault(require("./routes/AnswerReviewRoutes"));
 const proffesorRoutes_1 = __importDefault(require("./routes/proffesorRoutes"));
 const ClassroomRoutes_1 = __importDefault(require("./routes/ClassroomRoutes"));
 const NotificationsRoutes_1 = __importDefault(require("./routes/NotificationsRoutes"));
