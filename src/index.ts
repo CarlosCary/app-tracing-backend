@@ -11,7 +11,6 @@ import tasksRoutes from './routes/tasksRoutes';
 import studentRoutes from './routes/studentRoutes';
 import formTaskRoutes from './routes/FormTaskRoutes';
 
-import 'dotenv/config';
 import formReviewRoutes from './routes/FormReviewRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import answerReviewRoutes from './routes/answerReviewRoutes';
@@ -20,6 +19,7 @@ import classroomRoutes from './routes/ClassroomRoutes';
 import notificationsRoutes from './routes/NotificationsRoutes';
 
 import mongoose from 'mongoose';
+import 'dotenv/config';
 
 class Server {
     public app: Application;
