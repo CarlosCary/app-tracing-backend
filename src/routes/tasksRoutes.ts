@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { tasksController } from '../controllers/tasksController';
+
+
 import multer from 'multer';
 
 const storage = multer.diskStorage({
     destination: function (req, body, cb) {
-        cb(null, './upload');
+        cb(null, 'uploads/');
     },
 
     filename: function (req, file, cb) {

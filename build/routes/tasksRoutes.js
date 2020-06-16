@@ -8,7 +8,7 @@ const tasksController_1 = require("../controllers/tasksController");
 const multer_1 = __importDefault(require("multer"));
 const storage = multer_1.default.diskStorage({
     destination: function (req, body, cb) {
-        cb(null, './upload');
+        cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
         cb(null, new Date().toISOString() + file.originalname);

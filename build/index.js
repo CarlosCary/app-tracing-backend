@@ -11,18 +11,16 @@ const indexRoutes_1 = __importDefault(require("./routes/indexRoutes"));
 const loginRoutes_1 = __importDefault(require("./routes/loginRoutes"));
 const subjectsRoutes_1 = __importDefault(require("./routes/subjectsRoutes"));
 const tasksRoutes_1 = __importDefault(require("./routes/tasksRoutes"));
-const studentRoutes_1 = __importDefault(require("./routes/StudentRoutes"));
+const studentRoutes_1 = __importDefault(require("./routes/studentRoutes"));
 const FormTaskRoutes_1 = __importDefault(require("./routes/FormTaskRoutes"));
 const FormReviewRoutes_1 = __importDefault(require("./routes/FormReviewRoutes"));
-const reviewRoutes_1 = __importDefault(require("./routes/ReviewRoutes"));
-const answerReviewRoutes_1 = __importDefault(require("./routes/AnswerReviewRoutes"));
-const proffesorRoutes_1 = __importDefault(require("./routes/ProffesorRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const answerReviewRoutes_1 = __importDefault(require("./routes/answerReviewRoutes"));
+const proffesorRoutes_1 = __importDefault(require("./routes/proffesorRoutes"));
 const ClassroomRoutes_1 = __importDefault(require("./routes/ClassroomRoutes"));
 const NotificationsRoutes_1 = __importDefault(require("./routes/NotificationsRoutes"));
 const mongoose_1 = __importDefault(require("mongoose"));
-// require("dotenv/config");
-require('dotenv').config({ path: 'env.js' });
-
+require("dotenv/config");
 class Server {
     constructor() {
         this.app = express_1.default();
@@ -34,7 +32,7 @@ class Server {
         this.app.set('port', process.env.PORT || 3000);
         this.app.use(morgan_1.default("dev")); //nos ayuda a ver en consola las peticiones que se hacen
         this.app.use(cors_1.default());
-        this.app.use('/upload', express_1.default.static('upload'));
+        this.app.use('/uploads', express_1.default.static('uploads'));
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
         this.app.use(passport_1.default.initialize());
