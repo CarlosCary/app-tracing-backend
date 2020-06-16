@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { answerReviewController } from '../controllers/AnswerReviewController';
+import { answerReviewController } from '../controllers/answerReviewController';
 
 class AnswerReviewRoutes {
 

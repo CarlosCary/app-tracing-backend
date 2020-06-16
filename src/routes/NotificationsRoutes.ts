@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { notificationsController } from '../controllers/NotificationsController';
+import { notificationsController } from '../controllers/notificationsController';
 
 class NotificationsRoutes {
 

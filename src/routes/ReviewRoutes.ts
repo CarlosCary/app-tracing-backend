@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { reviewController } from '../controllers/ReviewController';
+import { reviewController } from '../controllers/reviewController';
 
 class FormReviewRoutes {
 

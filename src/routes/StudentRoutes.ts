@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import studentController from '../controllers/StudentController';
+import studentController from '../controllers/studentController';
 
 class StudentRoutes {
 

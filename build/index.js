@@ -11,14 +11,14 @@ const indexRoutes_1 = __importDefault(require("./routes/indexRoutes"));
 const loginRoutes_1 = __importDefault(require("./routes/loginRoutes"));
 const subjectsRoutes_1 = __importDefault(require("./routes/subjectsRoutes"));
 const tasksRoutes_1 = __importDefault(require("./routes/tasksRoutes"));
-const StudentRoutes_1 = __importDefault(require("./routes/StudentRoutes"));
-const FormTaskRoutes_1 = __importDefault(require("./routes/FormTaskRoutes"));
-const FormReviewRoutes_1 = __importDefault(require("./routes/FormReviewRoutes"));
-const ReviewRoutes_1 = __importDefault(require("./routes/ReviewRoutes"));
-const AnswerReviewRoutes_1 = __importDefault(require("./routes/AnswerReviewRoutes"));
-const ProffesorRoutes_1 = __importDefault(require("./routes/ProffesorRoutes"));
-const ClassroomRoutes_1 = __importDefault(require("./routes/ClassroomRoutes"));
-const NotificationsRoutes_1 = __importDefault(require("./routes/NotificationsRoutes"));
+const studentRoutes_1 = __importDefault(require("./routes/studentRoutes"));
+const formTaskRoutes_1 = __importDefault(require("./routes/formTaskRoutes"));
+const formReviewRoutes_1 = __importDefault(require("./routes/formReviewRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const answerReviewRoutes_1 = __importDefault(require("./routes/answerReviewRoutes"));
+const proffesorRoutes_1 = __importDefault(require("./routes/proffesorRoutes"));
+const classroomRoutes_1 = __importDefault(require("./routes/classroomRoutes"));
+const notificationsRoutes_1 = __importDefault(require("./routes/notificationsRoutes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 require("dotenv/config");
 class Server {
@@ -43,14 +43,14 @@ class Server {
         this.app.use('/', loginRoutes_1.default);
         this.app.use('/subjects', subjectsRoutes_1.default);
         this.app.use('/tasks', tasksRoutes_1.default);
-        this.app.use('/student', StudentRoutes_1.default);
-        this.app.use('/form/task', FormTaskRoutes_1.default);
-        this.app.use('/form/review', FormReviewRoutes_1.default);
-        this.app.use('/review', ReviewRoutes_1.default);
-        this.app.use('/review/answer', AnswerReviewRoutes_1.default);
-        this.app.use('/proffesor', ProffesorRoutes_1.default);
-        this.app.use('/classroom', ClassroomRoutes_1.default);
-        this.app.use('/notifications', NotificationsRoutes_1.default);
+        this.app.use('/student', studentRoutes_1.default);
+        this.app.use('/form/task', formTaskRoutes_1.default);
+        this.app.use('/form/review', formReviewRoutes_1.default);
+        this.app.use('/review', reviewRoutes_1.default);
+        this.app.use('/review/answer', answerReviewRoutes_1.default);
+        this.app.use('/proffesor', proffesorRoutes_1.default);
+        this.app.use('/classroom', classroomRoutes_1.default);
+        this.app.use('/notifications', notificationsRoutes_1.default);
     }
     start() {
         const auth = process.env.DB_CONNECTION;
