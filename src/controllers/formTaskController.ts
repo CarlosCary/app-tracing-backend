@@ -1,79 +1,76 @@
 import {Request, Response } from 'express';
-import FormReview from '../models/FormReviewModel';
+import { helpers } from '../utils/helpers';
+import FormTask from '../models/FormTaskModel';
 
-class FormReviewController {
-    
+class FormTaskController {
+
     public async create (req: Request, res: Response): Promise<void>{
         const { formTittle } = req.body;
-        const { formDescription } = req.body;
         const { tittles } = req.body;
         const { descriptions } = req.body;
         const { idProffesor } = req.body;
 
-        const formReview = new FormReview({
+        const formTask = new FormTask({
             formTittle,
-            formDescription,
             tittles,
             descriptions,
             idProffesor
         })
         
         try {
-            const savedFormReview = await formReview.save();
-            res.json(savedFormReview);
+            const savedFormTask = await formTask.save();
+            res.json(savedFormTask);
         } catch (error) {
             res.status(400).json({message: error });
         }
     }
 
-    public async getReviewFormsProffesor (req: Request, res: Response): Promise<any> { 
+    public async getFormsTasksProffesor (req: Request, res: Response): Promise<any> { 
         const { id_proffesor } = req.params;
 
         try {
-            const formsReviewProffesor = await FormReview.find({idProffesor: id_proffesor});
-            res.json(formsReviewProffesor);
+            const formsTasksProffesor = await FormTask.find({idProffesor: id_proffesor});
+            res.json(formsTasksProffesor);
         }
         catch(error) {
             res.json({message: error});
         }
     }
 
-    public async getReviewForm(req: Request, res: Response): Promise<any> { 
+    public async getFormTask (req: Request, res: Response): Promise<any> { 
         const { id_form_task } = req.params;
 
         try {
-            const reviewForm = await FormReview.findById(id_form_task);
-            res.json(reviewForm);
+            const formTask = await FormTask.findById(id_form_task);
+            res.json(formTask);
         }
         catch(error) {
             res.json({message: error});
         }
     }
 
-    public async updateReviewForm(req: Request, res: Response): Promise<any> {
-        const { idReviewForm } = req.body;
+    public async updateFormTask(req: Request, res: Response): Promise<any> {
+        const { idTaskForm } = req.body;
         const { formTittle } = req.body;
         const { formDescription } = req.body;
         const { tittles } = req.body;
         const { descriptions } = req.body;
 
         try {
-            const updateReviewForm = await FormReview.findByIdAndUpdate(idReviewForm, {
+            const updateFormTask = await FormTask.findByIdAndUpdate(idTaskForm, {
                 formTittle: formTittle,
                 formDescription: formDescription,
                 tittles: tittles,
                 descriptions: descriptions
             })
 
-            res.json(updateReviewForm);
+            res.json(updateFormTask);
         }
 
         catch (error) {
             res.json ({message: error});
         }
     }
-
-    
 }
 
-export const formReviewController = new FormReviewController();
+export const formTaskController = new FormTaskController();
