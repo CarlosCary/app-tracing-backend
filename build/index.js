@@ -21,6 +21,7 @@ const classroomRoutes_1 = __importDefault(require("./routes/classroomRoutes"));
 const notificationsRoutes_1 = __importDefault(require("./routes/notificationsRoutes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 require("dotenv/config");
+require('dotenv').config({ path: 'env.js' });
 class Server {
     constructor() {
         this.app = express_1.default();

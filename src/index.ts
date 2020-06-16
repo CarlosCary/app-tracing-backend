@@ -20,7 +20,7 @@ import notificationsRoutes from './routes/notificationsRoutes';
 
 import mongoose from 'mongoose';
 import 'dotenv/config';
-
+require('dotenv').config({ path: 'env.js' });
 class Server {
     public app: Application;
     public auth: any;
