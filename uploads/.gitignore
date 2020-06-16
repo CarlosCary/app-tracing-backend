@@ -1,3 +1,6 @@
+#This folder is used just in development,
+#in production we use 'build/uploads'.
+
 # Ignore everything in this directory
 *
 # Except this folder
