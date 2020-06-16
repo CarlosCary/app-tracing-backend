@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import proffesorController from '../controllers/proffesorController';
 
+
 class ProffesorRoutes {
 
     public router: Router = Router();
