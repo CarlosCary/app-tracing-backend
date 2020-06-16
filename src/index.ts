@@ -8,13 +8,13 @@ import indexRoutes from './routes/indexRoutes';
 import loginRoutes from './routes/loginRoutes';
 import subjectsRoutes from './routes/subjectsRoutes';
 import tasksRoutes from './routes/tasksRoutes';
-import studentRoutes from './routes/studentRoutes';
+import studentRoutes from './routes/StudentRoutes';
 import formTaskRoutes from './routes/FormTaskRoutes';
 
 import formReviewRoutes from './routes/FormReviewRoutes';
-import reviewRoutes from './routes/reviewRoutes';
-import answerReviewRoutes from './routes/answerReviewRoutes';
-import proffesorRoutes from './routes/proffesorRoutes';
+import reviewRoutes from './routes/ReviewRoutes';
+import answerReviewRoutes from './routes/AnswerReviewRoutes';
+import proffesorRoutes from './routes/ProffesorRoutes';
 import classroomRoutes from './routes/ClassroomRoutes';
 import notificationsRoutes from './routes/NotificationsRoutes';
 
