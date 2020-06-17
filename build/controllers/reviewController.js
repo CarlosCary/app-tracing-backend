@@ -54,7 +54,6 @@ class ReviewController {
                 const reviewersData = yield ProffesorModel_1.default.find({ _id: {
                         $in: idProffesors
                     } }).select('name email -_id');
-                console.log(reviewersData);
                 res.json({ reviewersData, idReview: review._id });
             }
             catch (error) {
@@ -168,7 +167,6 @@ class ReviewController {
             try {
                 let assignedReviews;
                 if (role === 'all') {
-                    console.log("TOOOODO");
                     assignedReviews = yield ReviewModel_1.default.find({ "reviewers.idProffesor": id_proffesor });
                 }
                 else {

@@ -41,7 +41,6 @@ class NotificationsController {
             for (let i = 0; i < mailStudents.length; i++) {
                 destinationEmails.push(mailStudents[i].email);
             }
-            console.log(destinationEmails);
             const transporter = nodemailer_1.default.createTransport({
                 service: 'gmail',
                 //Configurar en el server
@@ -115,7 +114,6 @@ class NotificationsController {
             const { idProffesor } = req.body;
             try {
                 const updateRapporteurNotification = yield NotificationsModel_1.default.findOneAndUpdate({ idProffesor: idProffesor }, { rapporteur: 0 });
-                console.log(updateRapporteurNotification);
                 res.json(updateRapporteurNotification);
             }
             catch (error) {

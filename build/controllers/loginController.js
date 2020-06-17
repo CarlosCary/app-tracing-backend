@@ -232,10 +232,6 @@ class LoginController {
             const { currentPassword } = req.body;
             const { newPassword } = req.body;
             const { role } = req.body;
-            console.log(idAccount);
-            console.log(currentPassword);
-            console.log(newPassword);
-            console.log(role);
             if (role === 'proffesor') {
                 try {
                     const verifyPassword = yield ProffesorModel_1.default.findById(idAccount).select('password -_id');

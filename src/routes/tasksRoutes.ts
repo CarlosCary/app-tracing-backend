@@ -41,7 +41,6 @@ class TasksRoutes {
         this.router.get('/submitted/:id_task/:id_student/:id_submitted', tasksController.getTaskSubmittedData2);
         this.router.get('/date/:id_task', tasksController.getTaskDate);
         this.router.put('/date/update', tasksController.updateTaskDate);
-        this.router.get('/prueba', tasksController.prueba);
     }
 
 }

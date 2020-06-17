@@ -66,7 +66,7 @@ class ClassroomController {
         
         try {
             const answersReviewProffesors:any = await AnswerReview.find({idReview: id_review});
-            console.log(answersReviewProffesors);
+            
             for(let i = 0; i < answersReviewProffesors.length; i ++) {
                 const proffesorName:any = await Student.findById(answersReviewProffesors[i].idProffesor)
                                                     .select('name -_id');

@@ -27,7 +27,6 @@ class StudentController {
     }
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
             const student = new StudentModel_1.default({
                 name: req.body.name,
                 username: req.body.username,

@@ -27,7 +27,6 @@ class Helpers {
                 return yield bcryptjs_1.default.compare(password, savedPassword);
             }
             catch (e) {
-                console.log(e);
             }
         });
     }

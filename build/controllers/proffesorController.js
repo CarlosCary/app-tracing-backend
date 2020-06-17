@@ -33,7 +33,6 @@ class ProffesorController {
                 res.json({ proffesors, director });
             }
             catch (error) {
-                console.log('hay un error wer');
                 res.json({ message: error });
             }
         });
@@ -61,7 +60,6 @@ class ProffesorController {
                     idReview: idProffesorsSelected._id });
             }
             catch (error) {
-                console.log('hay un error wer');
                 res.json({ message: error });
             }
         });

@@ -46,7 +46,6 @@ class ReviewController {
             const reviewersData:any = await Proffesor.find({_id: {
                                         $in: idProffesors
                                     }}).select('name email -_id');
-            console.log(reviewersData);
             res.json({reviewersData, idReview: review._id});
         }
         catch(error) {
@@ -167,7 +166,6 @@ class ReviewController {
         try {
             let assignedReviews:any;
             if(role === 'all') {
-                console.log("TOOOODO");
                 assignedReviews = await Review.find( {"reviewers.idProffesor": id_proffesor});
             }
                 

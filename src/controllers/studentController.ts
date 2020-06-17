@@ -14,7 +14,6 @@ class StudentController {
 
     public async create (req: Request, res: Response): Promise<void>{
         
-        console.log(req.body);
         const student = new Student({
             name: req.body.name,
             username: req.body.username,

@@ -68,10 +68,6 @@ class SubjectsController {
             const { id_student } = req.params;
             const { semester } = req.params;
             const { year } = req.params;
-            // const studentSubjects = await pool.query(
-            //     'SELECT subjects.subject_name, subjects.subject_semester, subjects.year, subjects.id_subject FROM subjects JOIN enrolled_students ON enrolled_students.id_subject=subjects.id_subject WHERE enrolled_students.id_student=?', [id_student]);
-            console.log("que tiene semester");
-            console.log(semester);
             if (semester != "null") {
                 try {
                     let studentSubjects = yield SubjectModel_1.default.find({ enrolledStudents: id_student })
@@ -136,8 +132,6 @@ class SubjectsController {
     getEnrolledStudentsData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_subject } = req.params;
-            console.log("este es el controlador");
-            console.log(id_subject);
             try {
                 let studentsEnrolled = yield SubjectModel_1.default.find({ _id: id_subject })
                     .select('enrolledStudents');

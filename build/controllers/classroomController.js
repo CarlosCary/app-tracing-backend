@@ -71,7 +71,6 @@ class ClassroomController {
             let answersProffesorsData = [];
             try {
                 const answersReviewProffesors = yield AnswerReviewModel_1.default.find({ idReview: id_review });
-                console.log(answersReviewProffesors);
                 for (let i = 0; i < answersReviewProffesors.length; i++) {
                     const proffesorName = yield StudentModel_1.default.findById(answersReviewProffesors[i].idProffesor)
                         .select('name -_id');

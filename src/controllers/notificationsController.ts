@@ -36,7 +36,7 @@ class NotificationsController {
         for(let i = 0; i < mailStudents.length; i ++) {
             destinationEmails.push(mailStudents[i].email);
         }
-        console.log(destinationEmails);
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             //Configurar en el server
@@ -123,7 +123,6 @@ class NotificationsController {
         
         try {
             const updateRapporteurNotification = await Notifications.findOneAndUpdate({idProffesor: idProffesor}, {rapporteur: 0});
-            console.log(updateRapporteurNotification);
             res.json(updateRapporteurNotification);
         }
 

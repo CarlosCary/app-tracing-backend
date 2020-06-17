@@ -30,8 +30,7 @@ class TasksController {
         const form = { tittleForm: formTittles, descriptionForm: formDescriptions}
         //this gets studentsId array and id of subject, we need just studentsId Array
         const studentsId:any = await Subject.findById(idSubject).select('enrolledStudents -_id');
-        console.log("studentsId: ");
-        console.log(studentsId);
+        
         const mailStudents:any = await Student.find({_id: {
                                                     $in: studentsId.enrolledStudents
                                                 }}).select('email -_id')
@@ -41,7 +40,7 @@ class TasksController {
             destinationEmails.push(mailStudents[i].email);
         }
 
-        console.log(destinationEmails);
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             //Configurar en el server
@@ -98,7 +97,6 @@ class TasksController {
             const savedTask = await task.save();
             res.json(savedTask);
         } catch (error) {
-            console.log(error);
             res.status(400).json({message: error });
         }
     }
@@ -114,7 +112,6 @@ class TasksController {
             const studentTasks = await Task.where('students').gte(id_student);
             res.json(studentTasks);
         } catch (error) {
-            console.log(error);
             res.status(400).json({message: error });
         } 
     }
@@ -124,7 +121,6 @@ class TasksController {
 
         try {
             // const taskSubmittedData:any = await TaskSubmitted.find({id_task: id_task});
-            // console.log(taskSubmittedData);
             const formTask = await Task.findById(id_task);
             res.json(formTask);
         } catch (error) {
@@ -184,17 +180,15 @@ class TasksController {
         const { id_task } = req.params;
         const { id_student } = req.params;
         const { id_submitted } = req.params;
-        // console.log("id_submitted");
-        // console.log(id_submitted);
+        
         try {
             
             const formTask = await Task.findById(id_task);
-            console.log('se encontro la tarea');
+            
             const taskSubmittedData:any = await TaskSubmitted.findById(id_submitted);
-            console.log('Tarea entregada wey:');
-            console.log(taskSubmittedData);
+            
             const studentName:any = await Student.findById(taskSubmittedData.idStudent).select('name -_id');
-            console.log('Datos del estudiante');
+            
             taskSubmittedData.author = studentName.name;
             res.json({formTask, taskSubmittedData: taskSubmittedData, author: studentName.name});
         } catch (error) {
@@ -238,10 +232,9 @@ class TasksController {
         const { id_task } = req.params;
 
         try {  
-            console.log("antes de la llamada ");
+            
             let taskSubmitted:any = await TaskSubmitted.findById(id_task);
-            console.log("despues");
-            console.log(taskSubmitted);
+            
             let studentName:any = await Student.findById(taskSubmitted.idStudent).select('name -_id');
             
             res.json({taskSubmitted: taskSubmitted, author: studentName});
@@ -264,10 +257,6 @@ class TasksController {
                 let task:any = await Task.findById (tasksSubmitted[i].idTask);
                 tasksName.push(task.name);
             }                                                                
-            
-
-            
-            console.log({tasksName, tasksSubmitted});
             
             res.json({tasksName, tasksSubmitted});
             
@@ -320,7 +309,7 @@ class TasksController {
             
             res.json(proffesorTasks);
         } catch (error) {
-            console.log(error);
+            
             res.status(400).json({message: error });
         } 
     }
@@ -352,7 +341,7 @@ class TasksController {
                 for(let j = 0; j < tasksSubmitted.length; j ++) {
                     if(studentsData[i]._id == tasksSubmitted[j].idStudent) {
                         isTaskSubmitted = true;
-                        console.log(tasksSubmitted[j]);
+                        
                         const reviewAssigned:any = await Review.find({idSubmittedTask: tasksSubmitted[j]._id});
                         
                         //Devolvera true si hay revisores asignados y false si no existen revisores en el campo 'reviewAssigned'
@@ -376,13 +365,12 @@ class TasksController {
         let tasksSubjects = [];
         const dateToday = helpers.getDateTodayEngFormat();
         
-        
         try {
             let subjectsData = await Subject.find({enrolledStudents: id_student});
         
             for(let i = 0; i < subjectsData.length; i ++) {
                 let tasksSubject:any = await Task.find({idSubject: subjectsData[i]._id, 
-                                                    deadline: {$gte: dateToday},
+                                                    // deadline: {$gte: dateToday},
                                                     visibilityDate: {$lte: dateToday}
                                                 });
                 
@@ -426,48 +414,6 @@ class TasksController {
         catch(error) {
             res.json({message: error});
         }
-    }
-
-    async prueba(req: Request, res: Response): Promise<any> {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            //Configurar en el server
-            // host: process.env.HOST_MAIL_SERVICE,
-            // port: process.env.PORT_MAIL_SERVICE,
-            auth: {
-               user: process.env.USER_MAIL_SERVICE,
-               pass: process.env.PASSWORD_MAIL_SERVICE
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        const userName = "Juan Perez"
-        const message = {
-            from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <doc.reviewer@gmail.com>", // Sender address
-            to: ['gary7412@hotmail.com', 'carlos.jorge7412@gmail.com'],         // recipients
-            subject: 'Documento asignado para revisar', // Subject line
-            html: `<h2>Asignación de tribunal</h2>
-                    <p>
-                        ¡Hola!, ha sido asignado como parte del tribunal de revisión de un documento.
-                    </p>
-                    <p>
-                        Por favor ingrese al sistema de revisión de documentos académicos.
-                    </p>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Ucatolica2.jpg/360px-Ucatolica2.jpg">
-                    ` // Plain text body
-        }
-        
-        transporter.sendMail(message, function(err:any, info:any) {
-            if (err) {
-                res.json({message: err});
-            } 
-            else {
-                
-                res.json({message: info});
-            }
-        });
     }
 }
 

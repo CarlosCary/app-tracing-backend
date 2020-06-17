@@ -12,7 +12,7 @@ class Helpers {
         try {
             return await bcryptjs.compare(password, savedPassword);
         } catch (e) {
-            console.log(e);
+            
         }
     }
 
@@ -43,7 +43,7 @@ class Helpers {
         const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         const yyyy = today.getFullYear();
         var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
-        console.log(utc);
+        
         return mm + '-' + dd + '-' + yyyy;  
     }
 
