@@ -20,6 +20,8 @@ class LoginRoutes {
         this.router.get('/account/:id_account', loginController.getDataAccount);
         this.router.put('/account/update', loginController.updateAccount);
         this.router.put('/account/update/password', loginController.updatePassword);
+        this.router.delete('/account/delete/:id_account', loginController.delete);
+
     }
 }
 

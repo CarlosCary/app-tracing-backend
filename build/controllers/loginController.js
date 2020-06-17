@@ -266,5 +266,17 @@ class LoginController {
             }
         });
     }
+    delete(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_account } = req.params;
+            try {
+                const dataAccountProffesor = yield ProffesorModel_1.default.deleteOne({ _id: id_account });
+                res.json(dataAccountProffesor);
+            }
+            catch (error) {
+                res.json({ message: error });
+            }
+        });
+    }
 }
 exports.loginController = new LoginController();

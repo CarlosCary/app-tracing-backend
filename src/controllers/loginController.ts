@@ -260,6 +260,18 @@ class LoginController {
             }
         }
     }
+
+    public async delete(req: Request, res: Response): Promise<any> {
+        const { id_account } = req.params;
+        
+        try {
+            const dataAccountProffesor = await Proffesor.deleteOne({_id: id_account});
+            res.json(dataAccountProffesor);
+        }
+        catch (error) {
+            res.json ({message: error});
+        }
+    }
 }
 
 export const loginController = new LoginController();

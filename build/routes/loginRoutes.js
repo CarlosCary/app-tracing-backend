@@ -17,6 +17,7 @@ class LoginRoutes {
         this.router.get('/account/:id_account', loginController_1.loginController.getDataAccount);
         this.router.put('/account/update', loginController_1.loginController.updateAccount);
         this.router.put('/account/update/password', loginController_1.loginController.updatePassword);
+        this.router.delete('/account/delete/:id_account', loginController_1.loginController.delete);
     }
 }
 const loginRoutes = new LoginRoutes();
