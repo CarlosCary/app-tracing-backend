@@ -131,6 +131,13 @@ class LoginController {
         })
         
         try {
+            const isAccountRegister = await Proffesor.findOne({ email: req.body.email });
+            if(isAccountRegister) {
+                res.status(401).json({
+                    message: "El correo electrónico ya fue registrado"
+                });
+            }
+            
             const savedProffesor = await proffesor.save();
             const notificationsProffesor = new Notifications({
                 idProffesor: savedProffesor._id,

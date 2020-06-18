@@ -139,6 +139,12 @@ class LoginController {
                 password: yield helpers_1.helpers.encryptPassword(req.body.password),
             });
             try {
+                const isAccountRegister = yield ProffesorModel_1.default.findOne({ email: req.body.email });
+                if (isAccountRegister) {
+                    res.status(401).json({
+                        message: "El correo electrónico ya fue registrado"
+                    });
+                }
                 const savedProffesor = yield proffesor.save();
                 const notificationsProffesor = new NotificationsModel_1.default({
                     idProffesor: savedProffesor._id,
