@@ -33,38 +33,6 @@ class ClassroomController {
             }
         });
     }
-    // public async getAnswerReviewProffesor(req: Request, res: Response): Promise<any> { 
-    //     const { id_proffesor } = req.params;
-    //     const { id_review } = req.params;
-    //     // try {
-    //     //     const formsReviewProffesor = await FormReview.find({idProffesor: id_proffesor});
-    //     //     res.json(formsReviewProffesor);
-    //     // }
-    //     // catch(error) {
-    //     //     res.json({message: error});
-    //     // }
-    // }
-    updateReviewForm(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // const { idReviewForm } = req.body;
-            // const { formTittle } = req.body;
-            // const { formDescription } = req.body;
-            // const { tittles } = req.body;
-            // const { descriptions } = req.body;
-            // try {
-            //     const updateReviewForm = await FormReview.findByIdAndUpdate(idReviewForm, {
-            //         formTittle: formTittle,
-            //         formDescription: formDescription,
-            //         tittles: tittles,
-            //         descriptions: descriptions
-            //     })
-            //     res.json(updateReviewForm);
-            // }
-            // catch (error) {
-            //     res.json ({message: error});
-            // }
-        });
-    }
     getAnswersReviewProffesors(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id_review } = req.params;

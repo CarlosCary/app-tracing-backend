@@ -3,6 +3,7 @@ import {Request, Response } from 'express';
 import { helpers } from '../utils/helpers';
 import Subject from '../models/SubjectModel';
 import Student from '../models/StudentModel';
+import SubjectFile from '../models/SubjectFileModel';
 
 class SubjectsController {
 
@@ -140,6 +141,60 @@ class SubjectsController {
             
         } catch (error) {
             res.status(400).json({message: error });
+        }
+    }
+    
+    public async addDocument (req: Request, res: Response) { 
+        const { idSubject } = req.body;
+        const { fileName } = req.body;
+
+        const documents:any = req.files;
+        
+        
+        let path;
+        
+        documents.map(function(document:any) {
+            path = document.path;
+        });
+
+        const subjectFile = new SubjectFile ({
+            idSubject: idSubject,
+            fileName: fileName,
+            path: path
+        });
+        
+        try {
+            const savedSubjectFile = await subjectFile.save();
+            res.json(savedSubjectFile);
+
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getSubjectFiles (req: Request, res: Response): Promise<any> { 
+        const { id_subject } = req.params;
+        
+        try {  
+            let subjectFiles:any = await SubjectFile.find({ idSubject: id_subject })
+            console.log(subjectFiles);
+            res.json(subjectFiles);
+            
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+    
+    public async deleteFile(req: Request, res: Response): Promise<any> {
+        const { id_file } = req.params;
+        
+        try {
+            const fileData = await SubjectFile.deleteOne({_id: id_file});
+            res.json(fileData);
+        }
+        catch (error) {
+            res.json ({message: error});
         }
     }
 }

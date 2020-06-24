@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../utils/helpers");
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
 const StudentModel_1 = __importDefault(require("../models/StudentModel"));
+const SubjectFileModel_1 = __importDefault(require("../models/SubjectFileModel"));
 class SubjectsController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -142,6 +143,55 @@ class SubjectsController {
             }
             catch (error) {
                 res.status(400).json({ message: error });
+            }
+        });
+    }
+    addDocument(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { idSubject } = req.body;
+            const { fileName } = req.body;
+            const documents = req.files;
+            let path;
+            documents.map(function (document) {
+                path = document.path;
+            });
+            const subjectFile = new SubjectFileModel_1.default({
+                idSubject: idSubject,
+                fileName: fileName,
+                path: path
+            });
+            try {
+                const savedSubjectFile = yield subjectFile.save();
+                res.json(savedSubjectFile);
+            }
+            catch (error) {
+                console.log(error);
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getSubjectFiles(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_subject } = req.params;
+            try {
+                let subjectFiles = yield SubjectFileModel_1.default.find({ idSubject: id_subject });
+                console.log(subjectFiles);
+                res.json(subjectFiles);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    deleteFile(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_file } = req.params;
+            try {
+                const fileData = yield SubjectFileModel_1.default.deleteOne({ _id: id_file });
+                res.json(fileData);
+            }
+            catch (error) {
+                res.json({ message: error });
             }
         });
     }
