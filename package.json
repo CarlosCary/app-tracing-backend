@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -w",
+    "tsc -w": "tsc -w",
     "dev": "nodemon build/index.js",
     "start": "nodemon build/index.js"
   },
