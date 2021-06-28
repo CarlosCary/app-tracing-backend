@@ -4,9 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node build/index.js",
-    "tsc": "tsc",
-    "postinstall": "npm run tsc",
     "dev": "nodemon build/index.js",
     "start": "node build/index.js"
   },
