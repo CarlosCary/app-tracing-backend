@@ -56,6 +56,8 @@ class ProffesorController {
             res.json({message:error});
         }
     }
+
+    
 }
 
 const proffesorController = new ProffesorController();

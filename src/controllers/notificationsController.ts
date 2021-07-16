@@ -3,9 +3,12 @@ import AnswerReview from '../models/AnswerReviewModel';
 import Student from '../models/StudentModel';
 import Notifications from '../models/NotificationsModel';
 import Proffesor from '../models/ProffesorModel';
+import Reviewers from '../models/ReviewersModel';
 import nodemailer from 'nodemailer';
 
 import 'dotenv/config';
+import ReviewModel from '../models/ReviewModel';
+import ReviewersModel from '../models/ReviewersModel';
 
 class NotificationsController {
 
@@ -24,17 +27,25 @@ class NotificationsController {
     }
    
     public async notifyCommittee(req: Request, res: Response): Promise<any> {
-        const { director } = req.body;
-        const { rapporteur } = req.body;
-        const { tutor } = req.body;
+        const { idStudent } = req.body;
+        let director;
+        let rapporteur;
+        let tutor;
         
-        const mailStudents:any = await Proffesor.find({_id: {
+        const reviewersData = await Reviewers.findOne({idStudent: idStudent})
+                                            .select("reviewers -_id");
+                                        
+        director = reviewersData.reviewers[0].idProffesor;
+        rapporteur = reviewersData.reviewers[1].idProffesor;
+        tutor = reviewersData.reviewers[2].idProffesor;
+
+        const proffesorsEmail:any = await Proffesor.find({_id: {
                                                     $in: [director, rapporteur, tutor]
                                                 }}).select('email -_id')
 
         let destinationEmails = [];
-        for(let i = 0; i < mailStudents.length; i ++) {
-            destinationEmails.push(mailStudents[i].email);
+        for(let i = 0; i < proffesorsEmail.length; i ++) {
+            destinationEmails.push(proffesorsEmail[i].email);
         }
         
         const transporter = nodemailer.createTransport({
@@ -76,8 +87,7 @@ class NotificationsController {
         //         res.json({message: info});
         //     }
         // });
-
-
+        
         try {
             let idProffesor = {idProffesor: director};
             const updateDirectorNotification = await Notifications.findOneAndUpdate(idProffesor, 

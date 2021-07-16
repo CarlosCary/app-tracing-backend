@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.classroomController = void 0;
 const AnswerReviewModel_1 = __importDefault(require("../models/AnswerReviewModel"));
 const StudentModel_1 = __importDefault(require("../models/StudentModel"));
 const ClassroomModel_1 = __importDefault(require("../models/ClassroomModel"));

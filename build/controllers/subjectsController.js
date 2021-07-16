@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.subjectsController = void 0;
 const helpers_1 = require("../utils/helpers");
 const SubjectModel_1 = __importDefault(require("../models/SubjectModel"));
 const StudentModel_1 = __importDefault(require("../models/StudentModel"));
 const SubjectFileModel_1 = __importDefault(require("../models/SubjectFileModel"));
+const ReviewersModel_1 = __importDefault(require("../models/ReviewersModel"));
 class SubjectsController {
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -139,7 +141,19 @@ class SubjectsController {
                 let studentsEnrolledData = yield StudentModel_1.default.find({ _id: {
                         $in: studentsEnrolled[0].enrolledStudents
                     } });
-                res.json(studentsEnrolledData);
+                let studentsdData = [];
+                let reviewersAssigned = yield ReviewersModel_1.default.find({ idStudent: {
+                        $in: studentsEnrolled[0].enrolledStudents
+                    } });
+                for (let i = 0; i < studentsEnrolledData.length; i++) {
+                    if (reviewersAssigned[i] != null) {
+                        studentsdData.push({ studentData: studentsEnrolledData[i], reviewersId: reviewersAssigned[i]._id });
+                    }
+                    else {
+                        studentsdData.push({ studentData: studentsEnrolledData[i], reviewersId: null });
+                    }
+                }
+                res.json(studentsdData);
             }
             catch (error) {
                 res.status(400).json({ message: error });

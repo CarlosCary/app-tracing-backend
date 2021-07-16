@@ -12,7 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.reviewController = void 0;
 const ReviewModel_1 = __importDefault(require("../models/ReviewModel"));
+const ReviewersModel_1 = __importDefault(require("../models/ReviewersModel"));
 const StudentModel_1 = __importDefault(require("../models/StudentModel"));
 const ProffesorModel_1 = __importDefault(require("../models/ProffesorModel"));
 const TaskSubmitted_1 = __importDefault(require("../models/TaskSubmitted"));
@@ -22,9 +24,17 @@ class ReviewController {
         return __awaiter(this, void 0, void 0, function* () {
             const { formTittles } = req.body;
             const { formDescriptions } = req.body;
-            const { reviewers } = req.body;
+            // const { reviewers } = req.body;
             const { idProffesor } = req.body;
             const { idSubmittedTask } = req.body;
+            const { idStudent } = req.body;
+            let reviewers = [];
+            const reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
+                .select('reviewers -_id');
+            for (let i = 0; i < (reviewersData.reviewers).length; i++) {
+                reviewers.push({ idProffesor: reviewersData.reviewers[i].idProffesor,
+                    role: reviewersData.reviewers[i].role });
+            }
             const review = new ReviewModel_1.default({
                 formTittles,
                 formDescriptions,
@@ -38,6 +48,64 @@ class ReviewController {
                 res.json(savedReview);
             }
             catch (error) {
+                console.log(error);
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    assignReviewers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { reviewersBody } = req.body;
+            const { idProffesor } = req.body;
+            const { idStudent } = req.body;
+            const reviewers = new ReviewersModel_1.default({
+                reviewers: reviewersBody,
+                idProffesor,
+                idStudent
+            });
+            try {
+                const reviewersSaved = yield reviewers.save();
+                res.json(reviewersSaved);
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getReviewersAssigned(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_student } = req.params;
+            const { id_proffesor } = req.params;
+            const proffesorCareer = yield ProffesorModel_1.default.findById(id_proffesor).select('career -_id');
+            const career = proffesorCareer.career;
+            try {
+                const proffesors = yield ProffesorModel_1.default.find()
+                    .where({ role: 'proffesor' })
+                    .where({ career: career })
+                    .select('name');
+                const director = yield ProffesorModel_1.default.find()
+                    .where({ role: 'director' })
+                    .where({ career: career })
+                    .select('name');
+                const reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: id_student })
+                    .select('reviewers');
+                res.json({ reviewersData, proffesors, director });
+            }
+            catch (error) {
+                res.status(400).json({ message: error });
+            }
+        });
+    }
+    getReviewersAssignedFromStudent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_student } = req.params;
+            console.log(id_student);
+            try {
+                const reviewers = yield ReviewersModel_1.default.findOne({ idStudent: id_student }).select('reviewers -_id');
+                res.json(reviewers);
+            }
+            catch (error) {
+                console.log(error);
                 res.status(400).json({ message: error });
             }
         });
@@ -134,6 +202,19 @@ class ReviewController {
             const idSubmittedTask = { idSubmittedTask: idSubmitted };
             try {
                 const updateFormTask = yield ReviewModel_1.default.findOneAndUpdate(idSubmittedTask, { reviewers });
+                res.json(updateFormTask);
+            }
+            catch (error) {
+                res.json({ message: error });
+            }
+        });
+    }
+    updateReviewers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { idReviewers } = req.body;
+            const { reviewers } = req.body;
+            try {
+                const updateFormTask = yield ReviewersModel_1.default.findByIdAndUpdate(idReviewers, { reviewers });
                 res.json(updateFormTask);
             }
             catch (error) {

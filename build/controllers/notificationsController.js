@@ -12,8 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.notificationsController = void 0;
 const NotificationsModel_1 = __importDefault(require("../models/NotificationsModel"));
 const ProffesorModel_1 = __importDefault(require("../models/ProffesorModel"));
+const ReviewersModel_1 = __importDefault(require("../models/ReviewersModel"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 require("dotenv/config");
 class NotificationsController {
@@ -31,15 +33,21 @@ class NotificationsController {
     }
     notifyCommittee(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { director } = req.body;
-            const { rapporteur } = req.body;
-            const { tutor } = req.body;
-            const mailStudents = yield ProffesorModel_1.default.find({ _id: {
+            const { idStudent } = req.body;
+            let director;
+            let rapporteur;
+            let tutor;
+            const reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
+                .select("reviewers -_id");
+            director = reviewersData.reviewers[0].idProffesor;
+            rapporteur = reviewersData.reviewers[1].idProffesor;
+            tutor = reviewersData.reviewers[2].idProffesor;
+            const proffesorsEmail = yield ProffesorModel_1.default.find({ _id: {
                     $in: [director, rapporteur, tutor]
                 } }).select('email -_id');
             let destinationEmails = [];
-            for (let i = 0; i < mailStudents.length; i++) {
-                destinationEmails.push(mailStudents[i].email);
+            for (let i = 0; i < proffesorsEmail.length; i++) {
+                destinationEmails.push(proffesorsEmail[i].email);
             }
             const transporter = nodemailer_1.default.createTransport({
                 service: 'gmail',

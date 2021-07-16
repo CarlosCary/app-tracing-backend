@@ -1,5 +1,6 @@
 import {Request, Response } from 'express';
 import Review from '../models/ReviewModel';
+import Reviewers from '../models/ReviewersModel';
 import Student from '../models/StudentModel';
 import Proffesor from '../models/ProffesorModel';
 import TaskSubmitted from '../models/TaskSubmitted';
@@ -10,9 +11,18 @@ class ReviewController {
     public async create (req: Request, res: Response): Promise<void>{
         const { formTittles } = req.body;
         const { formDescriptions } = req.body;
-        const { reviewers } = req.body;
+        // const { reviewers } = req.body;
         const { idProffesor } = req.body;
         const { idSubmittedTask } = req.body;
+        const { idStudent } = req.body;
+        let reviewers = [];
+        const reviewersData = await Reviewers.findOne({idStudent: idStudent})
+                                                .select('reviewers -_id');
+        
+        for(let i = 0; i < (reviewersData.reviewers).length; i ++) {
+            reviewers.push({idProffesor: reviewersData.reviewers[i].idProffesor, 
+                            role: reviewersData.reviewers[i].role});
+        }
         
         const review = new Review({
             formTittles,
@@ -25,9 +35,68 @@ class ReviewController {
         try {
             const savedReview = await review.save();
             const assignReview = await TaskSubmitted.findByIdAndUpdate(idSubmittedTask, {state: 'reviewersAssigned'});
-            
             res.json(savedReview);
         } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async assignReviewers (req: Request, res: Response): Promise<void>{
+        const { reviewersBody } = req.body;
+        const { idProffesor } = req.body;
+        const { idStudent } = req.body;
+        
+        const reviewers = new Reviewers({
+            reviewers: reviewersBody,
+            idProffesor,
+            idStudent
+        })
+        
+        try {
+            const reviewersSaved = await reviewers.save();
+            res.json(reviewersSaved);
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getReviewersAssigned (req: Request, res: Response): Promise<void>{
+        const { id_student } = req.params;
+        const { id_proffesor } = req.params;
+
+        const proffesorCareer:any = await Proffesor.findById(id_proffesor).select('career -_id');
+        const career = proffesorCareer.career;
+        
+        try {
+            const proffesors = await Proffesor.find()
+                                            .where({role: 'proffesor'})
+                                            .where({career: career})
+                                            .select('name');
+            const director = await Proffesor.find()
+                                            .where({role: 'director'})
+                                            .where({career: career})
+                                            .select('name');
+            const reviewersData:any = await Reviewers.findOne({idStudent: id_student})
+                                                            .select('reviewers');
+            
+            res.json({reviewersData, proffesors, director});
+
+        } catch (error) {
+            res.status(400).json({message: error });
+        }
+    }
+
+    public async getReviewersAssignedFromStudent (req: Request, res: Response): Promise<void>{
+        const { id_student } = req.params;
+        
+        console.log(id_student);
+        try {
+            const reviewers:any = await Reviewers.findOne({idStudent: id_student}).select('reviewers -_id');
+            res.json(reviewers);
+
+        } catch (error) {
+            console.log(error);
             res.status(400).json({message: error });
         }
     }
@@ -132,6 +201,22 @@ class ReviewController {
 
         try {
             const updateFormTask = await Review.findOneAndUpdate(idSubmittedTask, { reviewers });
+            res.json(updateFormTask);
+        }
+
+        catch (error) {
+            res.json ({message: error});
+        }
+    }
+
+
+    public async updateReviewers(req: Request, res: Response): Promise<any> {
+        const { idReviewers } = req.body;
+        const { reviewers } = req.body;
+        
+
+        try {
+            const updateFormTask = await Reviewers.findByIdAndUpdate(idReviewers, { reviewers });
             res.json(updateFormTask);
         }
 

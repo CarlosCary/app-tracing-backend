@@ -13,8 +13,7 @@ class ProffesorRoutes {
 
     config(): void {
         this.router.get('/committe/:id_account', proffesorController.getProffesorsAvaliableCommitte);
-        this.router.get('/committe/:id_account/:id_submitted_task', proffesorController.getProffesorsAvaliableCommitteAndSelected);
-        // this.router.post('/new', .create);
+        this.router.get('/committe/:id_account/:id_submitted_task', proffesorController.getProffesorsAvaliableCommitteAndSelected); 
     }
 }
 

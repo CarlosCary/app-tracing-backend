@@ -4,6 +4,7 @@ import { helpers } from '../utils/helpers';
 import Subject from '../models/SubjectModel';
 import Student from '../models/StudentModel';
 import SubjectFile from '../models/SubjectFileModel';
+import Reviewers from '../models/ReviewersModel';
 
 class SubjectsController {
 
@@ -136,8 +137,24 @@ class SubjectsController {
             let studentsEnrolledData:any = await Student.find({_id: 
                                                             {
                                                                 $in: studentsEnrolled[0].enrolledStudents
-                                                            }})
-            res.json(studentsEnrolledData);
+                                                            }});
+            let studentsdData = [];
+
+            let reviewersAssigned:any = await Reviewers.find({idStudent: 
+                {
+                    $in: studentsEnrolled[0].enrolledStudents
+                }})                                                
+            
+                for(let i = 0; i < studentsEnrolledData.length; i ++) {
+                if(reviewersAssigned[i] != null) {
+                    studentsdData.push({studentData: studentsEnrolledData[i], reviewersId: reviewersAssigned[i]._id});
+                }
+                else {
+                    studentsdData.push({studentData: studentsEnrolledData[i], reviewersId: null});
+                }
+            }
+
+            res.json(studentsdData);
             
         } catch (error) {
             res.status(400).json({message: error });
