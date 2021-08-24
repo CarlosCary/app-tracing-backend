@@ -16,7 +16,8 @@ class ReviewController {
         const { idSubmittedTask } = req.body;
         const { idStudent } = req.body;
         let reviewers = [];
-        const reviewersData = await Reviewers.findOne({idStudent: idStudent})
+        let reviewersData:any;
+        reviewersData = await Reviewers.findOne({idStudent: idStudent})
                                                 .select('reviewers -_id');
         
         for(let i = 0; i < (reviewersData.reviewers).length; i ++) {

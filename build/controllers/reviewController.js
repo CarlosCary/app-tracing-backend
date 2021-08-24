@@ -29,7 +29,8 @@ class ReviewController {
             const { idSubmittedTask } = req.body;
             const { idStudent } = req.body;
             let reviewers = [];
-            const reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
+            let reviewersData;
+            reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
                 .select('reviewers -_id');
             for (let i = 0; i < (reviewersData.reviewers).length; i++) {
                 reviewers.push({ idProffesor: reviewersData.reviewers[i].idProffesor,

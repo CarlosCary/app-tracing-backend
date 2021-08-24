@@ -31,8 +31,9 @@ class NotificationsController {
         let director;
         let rapporteur;
         let tutor;
+        let reviewersData:any
         
-        const reviewersData = await Reviewers.findOne({idStudent: idStudent})
+        reviewersData = await Reviewers.findOne({idStudent: idStudent})
                                             .select("reviewers -_id");
                                         
         director = reviewersData.reviewers[0].idProffesor;

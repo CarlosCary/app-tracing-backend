@@ -37,7 +37,8 @@ class NotificationsController {
             let director;
             let rapporteur;
             let tutor;
-            const reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
+            let reviewersData;
+            reviewersData = yield ReviewersModel_1.default.findOne({ idStudent: idStudent })
                 .select("reviewers -_id");
             director = reviewersData.reviewers[0].idProffesor;
             rapporteur = reviewersData.reviewers[1].idProffesor;
