@@ -198,7 +198,7 @@ class TasksController {
             const { idStudent } = req.body;
             const { idSubject } = req.body;
             const documents = req.files;
-            const dateSend = helpers_1.helpers.getDateToday();
+            const dateSend = helpers_1.helpers.getCurrentHourDate();
             let paths = [];
             documents.map(function (document) {
                 paths.push(document.path);

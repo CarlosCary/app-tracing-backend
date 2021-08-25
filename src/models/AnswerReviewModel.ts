@@ -15,6 +15,11 @@ const AnswerReviewSchema = new mongoose.Schema({
         required: true
     },
 
+    dateHourReview: {
+        type: String,
+        required: true
+    },
+
     idReview: {
         type: String,
         required: true

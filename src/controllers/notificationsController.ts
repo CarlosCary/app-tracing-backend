@@ -44,14 +44,15 @@ class NotificationsController {
                                                     $in: [director, rapporteur, tutor]
                                                 }}).select('email -_id')
 
-        let destinationEmails = [];
+        let destinationEmails =[];
         for(let i = 0; i < proffesorsEmail.length; i ++) {
             destinationEmails.push(proffesorsEmail[i].email);
         }
         
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
-            //Configurar en el server
+            //Si se quiere configurar en el server
             // host: process.env.HOST_MAIL_SERVICE,
             // port: process.env.PORT_MAIL_SERVICE,
             auth: {
@@ -64,7 +65,7 @@ class NotificationsController {
         });
 
         const message = {
-            from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <doc.reviewer@gmail.com>", // Sender address
+            from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <sistemarevision.ucb.cba@gmail.com>", // Sender address
             to: destinationEmails,         // recipients
             subject: 'Documento asignado para revisar', // Subject line
             html: `<h2>Asignación de tribunal</h2>
@@ -78,18 +79,22 @@ class NotificationsController {
                     ` // Plain text body
         }
         
-        //DESCOMENTAR CUANDO ESTE EN EL SERVER 
-        // transporter.sendMail(message, function(err:any, info:any) {
-        //     if (err) {
-        //         res.json({message: err});
-        //     } 
-        //     else {
-                
-        //         res.json({message: info});
-        //     }
-        // });
+        
+        
         
         try {
+            //DESCOMENTAR CUANDO ESTE EN EL SERVER 
+            transporter.sendMail(message, function(err:any, info:any) {
+                if (err) {
+                    console.log(err);
+                    res.json({message: err});
+                } 
+                else {
+                    console.log(info);
+                    res.json({message: info});
+                }
+            });
+
             let idProffesor = {idProffesor: director};
             const updateDirectorNotification = await Notifications.findOneAndUpdate(idProffesor, 
                                                                                     { 

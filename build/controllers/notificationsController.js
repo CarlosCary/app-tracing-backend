@@ -52,7 +52,7 @@ class NotificationsController {
             }
             const transporter = nodemailer_1.default.createTransport({
                 service: 'gmail',
-                //Configurar en el server
+                //Si se quiere configurar en el server
                 // host: process.env.HOST_MAIL_SERVICE,
                 // port: process.env.PORT_MAIL_SERVICE,
                 auth: {
@@ -64,7 +64,7 @@ class NotificationsController {
                 }
             });
             const message = {
-                from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <doc.reviewer@gmail.com>",
+                from: "'Universidad Católica Boliviana Sistema de Revisión de documentos' <sistemarevision.ucb.cba@gmail.com>",
                 to: destinationEmails,
                 subject: 'Documento asignado para revisar',
                 html: `<h2>Asignación de tribunal</h2>
@@ -77,16 +77,18 @@ class NotificationsController {
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Ucatolica2.jpg/360px-Ucatolica2.jpg">
                     ` // Plain text body
             };
-            //DESCOMENTAR CUANDO ESTE EN EL SERVER 
-            // transporter.sendMail(message, function(err:any, info:any) {
-            //     if (err) {
-            //         res.json({message: err});
-            //     } 
-            //     else {
-            //         res.json({message: info});
-            //     }
-            // });
             try {
+                //DESCOMENTAR CUANDO ESTE EN EL SERVER 
+                transporter.sendMail(message, function (err, info) {
+                    if (err) {
+                        console.log(err);
+                        res.json({ message: err });
+                    }
+                    else {
+                        console.log(info);
+                        res.json({ message: info });
+                    }
+                });
                 let idProffesor = { idProffesor: director };
                 const updateDirectorNotification = yield NotificationsModel_1.default.findOneAndUpdate(idProffesor, {
                     $inc: { director: 1 }

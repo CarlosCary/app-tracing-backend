@@ -16,6 +16,10 @@ const AnswerReviewSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
+    dateHourReview: {
+        type: String,
+        required: true
+    },
     idReview: {
         type: String,
         required: true

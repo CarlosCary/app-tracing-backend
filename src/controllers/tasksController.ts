@@ -202,7 +202,7 @@ class TasksController {
         const { idSubject } = req.body;
 
         const documents:any = req.files;
-        const dateSend = helpers.getDateToday();
+        const dateSend = helpers.getCurrentHourDate();
         let paths:any = [];
         
         documents.map(function(document:any) {

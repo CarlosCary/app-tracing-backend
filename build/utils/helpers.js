@@ -49,6 +49,15 @@ class Helpers {
         const yyyy = today.getFullYear();
         return dd + '-' + mm + '-' + yyyy;
     }
+    getCurrentHourDate() {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        const yyyy = today.getFullYear();
+        const hh = String(today.getHours()).padStart(2, '0');
+        const min = String(today.getMinutes()).padStart(2, '0');
+        return hh + ":" + min + ' - ' + dd + '/' + mm + '/' + yyyy;
+    }
     getDateTodayEngFormat() {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');

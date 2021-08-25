@@ -2,6 +2,7 @@ import {Request, Response } from 'express';
 import AnswerReview from '../models/AnswerReviewModel';
 import Student from '../models/StudentModel';
 import Proffesor from '../models/ProffesorModel';
+import { helpers } from '../utils/helpers';
 
 class AnswerReviewController {
 
@@ -10,14 +11,15 @@ class AnswerReviewController {
         const { feedBackAnswers } = req.body;
         const { idProffesor } = req.body;
         const { idReview } = req.body;
+        const dateHourReview = helpers.getCurrentHourDate();
 
         const answerReview = new AnswerReview({
             tittlesForm,
             feedBackAnswers,
             idProffesor,
+            dateHourReview,
             idReview
         })
-        
         try {
             const savedAnswerReview= await answerReview.save();
             res.json(savedAnswerReview);
@@ -32,19 +34,23 @@ class AnswerReviewController {
         
         try {
             const answersReviewProffesors:any = await AnswerReview.find({idReview: id_review});
-            
+            // console.log(answersReviewProffesors);
             for(let i = 0; i < answersReviewProffesors.length; i ++) {
                 const proffesorName:any = await Proffesor.findById(answersReviewProffesors[i].idProffesor)
                                                     .select('name -_id');
                 let answersProffesor = [];
                 for(let j = 0; j < answersReviewProffesors[i].tittlesForm.length; j ++) {
                     answersProffesor.push({tittle: answersReviewProffesors[i].tittlesForm[j],
-                                            answer: answersReviewProffesors[i].feedBackAnswers[j]});
+                                            answer: answersReviewProffesors[i].feedBackAnswers[j]}
+                                            );
                 }
-                answersProffesorsData.push({proffesorName: proffesorName.name, answersProffesor});
+
+                answersProffesorsData.push({proffesorName: proffesorName.name, 
+                                            answersProffesor, 
+                                            dateHourReview: answersReviewProffesors[i].dateHourReview});
             }
             
-
+            console.log(answersProffesorsData);
             res.json(answersProffesorsData);
         }
         catch(error) {
